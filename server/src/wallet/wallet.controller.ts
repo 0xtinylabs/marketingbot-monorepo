@@ -1,0 +1,38 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { WalletService } from './wallet.service';
+import { SignatureGuard } from 'src/guards/signature.guard';
+import { SIGNMESSAGES } from 'src/contants';
+import { CreateWalletsDto } from './dto/create-wallet.dto';
+import { WalletAddressedRequest } from 'src/types/common';
+
+@Controller('wallet')
+export class WalletController {
+  constructor(private readonly walletService: WalletService) {}
+
+  @UseGuards(new SignatureGuard(SIGNMESSAGES.DOWNLOAD_WALLETS))
+  @Get('/download')
+  async getWallets(@Request() req: WalletAddressedRequest) {
+    const res = await this.walletService.getAllWallets(req.wallet_address);
+    return res;
+  }
+
+  @UseGuards(new SignatureGuard(SIGNMESSAGES.CREATE_WALLET))
+  @Post('/create-many')
+  async createWallets(
+    @Body() body: CreateWalletsDto,
+    @Request() req: WalletAddressedRequest,
+  ) {
+    const res = await this.walletService.createWallets(
+      req.wallet_address,
+      body,
+    );
+    return { wallets: res };
+  }
+}

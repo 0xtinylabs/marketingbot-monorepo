@@ -1,0 +1,11 @@
+export const SIGNMESSAGES = {
+  LOGIN: 'LOGIN',
+  CREATE_WALLET: 'CREATE_WALLET',
+  SET_TOKEN: 'SET_TOKEN',
+  CONNECT_SOCKET: 'CONNECT_SOCKET',
+  DOWNLOAD_WALLETS: 'DOWNLOAD_WALLETS',
+};
+
+export const TOKENS = {
+  ETH: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+};

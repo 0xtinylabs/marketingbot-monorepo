@@ -1,0 +1,85 @@
+import { SIGNMESSAGES } from "@/constants";
+import signMessage from "@/helpers/sign-message";
+import api from "@/service/api";
+import { useDisconnect } from "@reown/appkit/react";
+import useUserStore from "../store/user-store";
+import useWalletStore from "../store/wallet";
+import toast from "react-hot-toast";
+import useTokenStore from "@/store/token-store";
+import { io } from "socket.io-client";
+import useSocketStore from "@/store/socket-store";
+
+const useUser = () => {
+  const { disconnect } = useDisconnect();
+  const { setToken } = useTokenStore();
+  const { loginUser } = useUserStore();
+  const { setWallets, deselectAllWallets, wallets } = useWalletStore();
+  const { setSocket } = useSocketStore();
+
+  const connectSocket = async (address: string) => {
+    try {
+      const signature = await signMessage(SIGNMESSAGES.CONNECT_SOCKET);
+      if (signature) {
+        const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+          extraHeaders: {
+            "x-wallet_address": address,
+            "x-signature": signature,
+          },
+        });
+        socket.connect();
+        console.log(socket);
+        setSocket(socket);
+      }
+    } catch {
+      toast.error("Could not connect socket");
+    }
+  };
+
+  const setUserToken = async (address: string, token_address: string) => {
+    try {
+      const signature = await signMessage(SIGNMESSAGES.SET_TOKEN);
+      if (signature) {
+        const res = await api.setUserToken(address, signature, token_address);
+        setToken(res.token);
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Could not create wallets");
+    }
+  };
+
+  const createWallets = async (address: string, count: number) => {
+    try {
+      const signature = await signMessage(SIGNMESSAGES.CREATE_WALLET);
+      if (signature) {
+        const res = await api.createWallets(address, signature, count);
+        console.log(res);
+        setWallets([...wallets, ...res.wallets]);
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Could not create wallets");
+    }
+  };
+
+  const login = async (address: string) => {
+    try {
+      const signature = await signMessage(SIGNMESSAGES.LOGIN);
+      if (signature) {
+        const id = toast.loading("Getting data");
+        const res = await api.login(address, signature);
+        toast.remove(id);
+        loginUser(res.user);
+        setWallets(res.wallets);
+        setToken(res.token);
+        deselectAllWallets();
+      }
+    } catch {
+      disconnect();
+    }
+  };
+
+  return { login, createWallets, setUserToken, connectSocket };
+};
+
+export default useUser;

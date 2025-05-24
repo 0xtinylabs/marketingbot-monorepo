@@ -7,7 +7,8 @@ const repo = 'your-repo';
 const branch = 'main'; // or whatever branch you want
 
 const intervalMs = 61 * 1000; // Check every 1 min
-const file = '.last_commit_hash'; // Local file to store last commit hash
+const lastCommitFile = '.last_commit_hash'; // Local file to store last commit hash
+const lastUpdatedFile = '.last_updated_hash'; // Local file to store last update time
 
 function getLatestCommit(cb) {
   const options = {
@@ -30,13 +31,15 @@ function getLatestCommit(cb) {
 
 function checkForUpdate(callback) {
   getLatestCommit(sha => {
-    const lastSha = fs.existsSync(file) ? fs.readFileSync(file, 'utf-8') : '';
-    if (sha !== lastSha && sha && lastSha) {
+    fs.writeFileSync(lastCommitFile, sha)
+    const last_updated = fs.existsSync(lastUpdatedFile) ? fs.readFileSync(lastUpdatedFile) : '';
+
+    if (sha !== last_updated && sha) {
       callback?.()
-      fs.writeFileSync(file, sha);
     } else {
       console.log('No update');
     }
+
   });
 }
 
@@ -51,5 +54,7 @@ const runUpdateCheck = (callback) => {
 module.exports = {
   checkForUpdate,
   getLatestCommit,
-  runUpdateCheck
+  runUpdateCheck,
+  lastUpdatedFile,
+  lastCommitFile
 }

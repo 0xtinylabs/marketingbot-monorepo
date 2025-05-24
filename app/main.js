@@ -8,7 +8,8 @@ const client_dir = join(dirname, "client");
 const server_dir = join(dirname, "server");
 const app_dir = join(dirname, "app");
 
-const { runUpdateCheck } = require("./check-for-update")
+const { runUpdateCheck, lastUpdatedFile, lastCommitFile } = require("./check-for-update");
+const { existsSync, write, readFileSync, writeFileSync } = require("fs");
 
 
 let window;
@@ -159,6 +160,8 @@ const startApp = async () => {
 ipcMain.on("reload", async () => {
   const { exec } = require("child_process");
   const res = exec(`cd ${dirname} && git pull`);
+  const commit = existsSync(lastCommitFile) ? readFileSync(lastCommitFile, "utf-8") : "";
+  existsSync(lastUpdatedFile) && writeFileSync(lastUpdatedFile, commit);
   res.on("close", async () => {
     await startApp();
   });

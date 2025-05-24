@@ -38,11 +38,8 @@ const useUser = () => {
 
   const setUserToken = async (address: string, token_address: string) => {
     try {
-      const signature = await signMessage(walletProvider, SIGNMESSAGES.SET_TOKEN);
-      if (signature) {
-        const res = await api.setUserToken(address, signature, token_address);
-        setToken(res.token);
-      }
+      const res = await api.setUserToken(address, token_address);
+      setToken(res.token);
     } catch (err) {
       console.log(err);
       toast.error("Could not create wallets");

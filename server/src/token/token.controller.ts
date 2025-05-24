@@ -4,12 +4,13 @@ import { SignatureGuard } from 'src/guards/signature.guard';
 import { SIGNMESSAGES } from 'src/contants';
 import { WalletAddressedRequest } from 'src/types/common';
 import SetTokenDTO from './dto/set-token.dto';
+import { WalletRequest } from 'src/decorators/method/wallet_address.decorator';
 
 @Controller('token')
 export class TokenController {
-  constructor(private readonly tokenService: TokenService) {}
+  constructor(private readonly tokenService: TokenService) { }
 
-  @UseGuards(new SignatureGuard(SIGNMESSAGES.SET_TOKEN))
+  @WalletRequest()
   @Put('/set')
   async setUserToken(
     @Request() req: WalletAddressedRequest,

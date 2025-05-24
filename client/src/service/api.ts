@@ -56,7 +56,6 @@ const api = {
 
   setUserToken: async (
     wallet_address: string,
-    signature: string,
     token_address: string
   ) => {
     const res = await baseService.put<{ token: TokenType }>(
@@ -67,7 +66,6 @@ const api = {
       {
         headers: {
           "x-wallet_address": wallet_address,
-          "x-signature": signature,
         },
       }
     );

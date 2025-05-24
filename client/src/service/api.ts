@@ -41,13 +41,12 @@ const api = {
     return res.data;
   },
 
-  downloadWallets: async (wallet_address: string, signature: string) => {
+  downloadWallets: async (wallet_address: string) => {
     const res = await baseService.get<WalletDownloadResponse>(
       "/wallet/download",
       {
         headers: {
           "x-wallet_address": wallet_address,
-          "x-signature": signature,
         },
       }
     );

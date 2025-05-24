@@ -17,7 +17,7 @@ import { WalletRequest } from 'src/decorators/method/wallet_address.decorator';
 export class WalletController {
   constructor(private readonly walletService: WalletService) { }
 
-  @UseGuards(new SignatureGuard(SIGNMESSAGES.DOWNLOAD_WALLETS))
+  @WalletRequest()
   @Get('/download')
   async getWallets(@Request() req: WalletAddressedRequest) {
     const res = await this.walletService.getAllWallets(req.wallet_address);

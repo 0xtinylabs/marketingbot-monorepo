@@ -27,6 +27,7 @@ const api = {
     signature: string,
     count: number
   ) => {
+
     const res = await baseService.post<{ wallets: WalletType[] }>(
       "/wallet/create-many",
       {

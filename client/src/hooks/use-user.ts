@@ -1,7 +1,7 @@
 import { SIGNMESSAGES } from "@/constants";
 import signMessage from "@/helpers/sign-message";
 import api from "@/service/api";
-import { useDisconnect } from "@reown/appkit/react";
+import { useAppKitProvider, useDisconnect } from "@reown/appkit/react";
 import useUserStore from "../store/user-store";
 import useWalletStore from "../store/wallet";
 import toast from "react-hot-toast";
@@ -15,10 +15,11 @@ const useUser = () => {
   const { loginUser } = useUserStore();
   const { setWallets, deselectAllWallets, wallets } = useWalletStore();
   const { setSocket } = useSocketStore();
+  const { walletProvider } = useAppKitProvider("eip155")
 
   const connectSocket = async (address: string) => {
     try {
-      const signature = await signMessage(SIGNMESSAGES.CONNECT_SOCKET);
+      const signature = await signMessage(walletProvider, SIGNMESSAGES.CONNECT_SOCKET);
       if (signature) {
         const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
           extraHeaders: {
@@ -37,7 +38,7 @@ const useUser = () => {
 
   const setUserToken = async (address: string, token_address: string) => {
     try {
-      const signature = await signMessage(SIGNMESSAGES.SET_TOKEN);
+      const signature = await signMessage(walletProvider, SIGNMESSAGES.SET_TOKEN);
       if (signature) {
         const res = await api.setUserToken(address, signature, token_address);
         setToken(res.token);
@@ -50,7 +51,7 @@ const useUser = () => {
 
   const createWallets = async (address: string, count: number) => {
     try {
-      const signature = await signMessage(SIGNMESSAGES.CREATE_WALLET);
+      const signature = await signMessage(walletProvider, SIGNMESSAGES.CREATE_WALLET);
       if (signature) {
         const res = await api.createWallets(address, signature, count);
         console.log(res);
@@ -64,7 +65,7 @@ const useUser = () => {
 
   const login = async (address: string) => {
     try {
-      const signature = await signMessage(SIGNMESSAGES.LOGIN);
+      const signature = await signMessage(walletProvider, SIGNMESSAGES.LOGIN);
       if (signature) {
         const id = toast.loading("Getting data");
         const res = await api.login(address, signature);

@@ -46,7 +46,7 @@ const AddWalletsModal = (props: PropsWithChildren) => {
       <Modal.Trigger asChild>{props.children}</Modal.Trigger>
       <Modal.Content showClose={false}>
         <ReactAriaNumberField
-          defaultValue={10}
+          defaultValue={count}
           minValue={0}
           onChange={(value) => {
             setCount(value);
@@ -84,7 +84,7 @@ const AddWalletsModal = (props: PropsWithChildren) => {
                   await createWallets(user?.wallet_address, count);
                   toast("Successfully added wallets");
                   closeAll();
-                } catch {}
+                } catch { }
               }
             }}
             size="small"

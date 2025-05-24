@@ -9,7 +9,7 @@ export class WalletService {
   constructor(
     private db: DBservice,
     private web3Service: Web3Service,
-  ) {}
+  ) { }
 
   async getAllWallets(wallet_address: string) {
     const user = await this.db.getUserForWalletAddress(wallet_address, true);
@@ -26,6 +26,7 @@ export class WalletService {
     }
 
     const wallets: WalletType[] = [];
+    console.log(wallets)
     for (let i = 0; i < body.count; i++) {
       const wallet = this.web3Service.createWallet();
       const user_wallet = await this.db.wallet.create({

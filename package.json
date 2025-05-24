@@ -1,0 +1,47 @@
+{
+    "name": "marketing-bot",
+    "version": "1.0.1",
+    "description": "",
+    "main": "app/main.js",
+    "scripts": {
+        "build:client": "cd client && npm run build",
+        "start:client": "cd client && npm run start",
+        "start:client:dev": "cd client && npm run dev",
+        "start:server:dev": "cd server && npm run start:dev",
+        "build:server": "cd server && npm run build",
+        "start:server": "cd server && npm run start",
+        "start:server:prod": "cd server && npm run build && npm run start",
+        "start:client:prod": "cd client && npm run build && npm run start",
+        "build:app": "cd app && npm run build",
+        "start:app": "cd app && npm run start",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "package": "electron-forge package",
+        "make": "electron-forge make",
+        "publish": "GITHUB_TOKEN= electron-forge publish"
+    },
+    "author": "",
+    "license": "ISC",
+    "repository": {
+        "url": "https://github.com/0xtinylabs/marketingbot-monorepo"
+    },
+    "dependencies": {
+        "@electron/packager": "^18.3.6",
+        "axios": "^1.9.0",
+        "child_process": "^1.0.2",
+        "electron-extension-installer": "^1.2.0"
+    },
+    "build": {
+        "files": [
+            "client",
+            "server"
+        ]
+    },
+    "devDependencies": {
+        "@electron-forge/cli": "^7.8.1",
+        "@electron-forge/maker-deb": "^7.8.1",
+        "@electron-forge/maker-squirrel": "^7.8.1",
+        "@electron-forge/maker-zip": "^7.8.1",
+        "@electron-forge/publisher-github": "^7.8.1",
+        "electron": "^36.3.1"
+    }
+}

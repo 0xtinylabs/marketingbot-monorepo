@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type ModalType = "add-wallet" | "target-token" | "withdraw" | null;
+export type ModalType = "add-wallet" | "target-token" | "withdraw" | "terminal" | null;
 
 type State = {
   modal: ModalType;

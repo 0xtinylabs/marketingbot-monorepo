@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Loading...</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #18181b;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    .card {
+      background: #23232a;
+      border-radius: 1.25rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,.24);
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 300px;
+      gap: 1.5rem;
+    }
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid #353542;
+      border-top: 4px solid #818cf8;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin-bottom: 0.5rem;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .desc {
+      color: #e0e7ef;
+      font-size: 1.08rem;
+      font-weight: 500;
+      letter-spacing: .01em;
+      text-align: center;
+      opacity: 0.92;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="spinner"></div>
+    <div class="desc">Client and Server are starting...</div>
+  </div>
+</body>
+</html>

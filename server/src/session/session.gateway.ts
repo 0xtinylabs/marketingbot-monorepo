@@ -18,7 +18,7 @@ import { Request, UseGuards } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { SignatureGuard } from 'src/guards/signature.guard';
 import { SIGNMESSAGES } from 'src/contants';
-import { SessionStartDTO } from './dto/session.dto';
+import { SessionStartDTO, SessionStopDTO } from './dto/session.dto';
 import { TransactionService } from 'src/transaction/transaction.service';
 
 @WebSocketGateway(3004, {
@@ -35,6 +35,8 @@ export class SessionGateway implements OnGatewayConnection {
     private transaction: TransactionService,
   ) { }
 
+  private activeControllers: Record<string, AbortController> = {};
+
   @UseGuards(new SignatureGuard(SIGNMESSAGES.CONNECT_SOCKET))
   handleConnection(client: any, ...args: any[]) { }
 
@@ -42,11 +44,27 @@ export class SessionGateway implements OnGatewayConnection {
     this.server.to(socketId).emit(event, payload);
   }
 
+  @SubscribeMessage("session-stop")
+  async handleSessionStop(client: Socket, @MessageBody() data: SessionStopDTO): Promise<void> {
+    const controller = this.activeControllers[data.wallet_address];
+    if (controller) {
+      controller.abort();
+      delete this.activeControllers[data.wallet_address];
+    }
+
+    // Optionally, you can also emit a message to the client
+    client.emit('session-end', { isLoop: data.isloop });
+
+
+  }
+
   @SubscribeMessage('session-start')
   async handeSessionStart(
     client: Socket,
     @MessageBody() data: SessionStartDTO,
   ): Promise<User | null> {
+    const controller = new AbortController();
+    this.activeControllers[data.wallet_address] = controller;
     const user = await this.db.getUserForWalletAddress(data.wallet_address);
 
     const session = await this.db.session.create({
@@ -65,7 +83,9 @@ export class SessionGateway implements OnGatewayConnection {
       throw new Error('');
     }
 
+
     await this.transaction.startTransactionSession(
+      controller,
       data.sessionData,
       user,
       data.wallets,

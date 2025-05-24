@@ -5,3 +5,8 @@ export class SessionStartDTO {
   public wallet_address: string;
   public wallets: WalletType[];
 }
+
+export class SessionStopDTO {
+  public wallet_address: string;
+  public isloop: boolean
+}

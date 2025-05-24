@@ -9,7 +9,6 @@ import {
   RiEyeFill,
   RiEyeOffFill,
   RiPercentLine,
-  RiPlayCircleLine,
   RiStopCircleLine,
   RiTimerLine,
 } from "@remixicon/react";
@@ -34,6 +33,8 @@ const MainSidebar = () => {
   const { token } = useTokenStore()
 
   const { getWalletsBalanceTotalData } = useWalletStore()
+
+  console.log(transactionSession)
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -78,6 +79,7 @@ const MainSidebar = () => {
         <Input.Root className="bg-transparent">
           <Input.Wrapper className="bg-transparent">
             <Input.Input
+              value={transactionSession?.percentage ?? ""}
               onChange={(e) => {
                 setTransactionSessionOption(
                   "percentage",
@@ -127,6 +129,8 @@ const MainSidebar = () => {
                     parseInt(e.target.value)
                   );
                 }}
+                value={transactionSession?.min_time ?? ""}
+
                 type="number"
                 placeholder={
                   transactionSession?.interval === "MINMAX"
@@ -141,6 +145,8 @@ const MainSidebar = () => {
               <Input.Wrapper className="bg-transparent">
                 <Input.Icon as={RiTimerLine} />
                 <Input.Input
+                  value={transactionSession?.max_time ?? ""}
+
                   onChange={(e) => {
                     setTransactionSessionOption(
                       "max_time",
@@ -163,12 +169,12 @@ const MainSidebar = () => {
               onClick={() => {
                 setTransactionSessionOption("type", "SINGLE");
               }}
-              value=""
+              value="SINGLE"
             >
               Single Session
             </SegmentedControl.Trigger>
             <SegmentedControl.Trigger
-              value="system"
+              value="LOOP"
               onClick={() => {
                 setTransactionSessionOption("type", "LOOP");
               }}
@@ -178,48 +184,47 @@ const MainSidebar = () => {
           </SegmentedControl.List>
         </SegmentedControl.Root>
         <div className="flex gap-x-3 py-2">
-          <Button.Root
-            onClick={() => {
-              setTransactionSessionOption("transaction", "BUY");
-            }}
-            variant="primary"
-            mode={
-              transactionSession?.transaction === "BUY" ? "filled" : "ghost"
-            }
-            className={clsx("flex-1")}
-          >
-            <Button.Icon as={RiArrowLeftDownLine} /> Buy
-          </Button.Root>
-          <Button.Root
-            onClick={() => {
-              setTransactionSessionOption("transaction", "SELL");
-            }}
-            mode={
-              transactionSession?.transaction === "SELL" ? "filled" : "ghost"
-            }
-            className="flex-1 "
-            variant="error"
-          >
-            <Button.Icon as={RiArrowRightUpLine} /> Sell
-          </Button.Root>
-          <Button.Root
-            className="flex-1"
-            variant={
-              transactionSession?.status === "RUNNING" ? "error" : "neutral"
-            }
-            mode="stroke"
-            onClick={emitSessionStart}
-          >
-            {transactionSession?.status === "RUNNING" ? (
+          {transactionSession?.status !== "RUNNING" && <>
+            <Button.Root
+              onClick={() => {
+                setTransactionSessionOption("transaction", "BUY");
+                emitSessionStart()
+              }}
+              variant="primary"
+              mode={
+                transactionSession?.transaction === "BUY" ? "filled" : "ghost"
+              }
+              className={clsx("flex-1")}
+            >
+              <Button.Icon as={RiArrowLeftDownLine} /> Buy
+            </Button.Root>
+            <Button.Root
+              onClick={() => {
+                setTransactionSessionOption("transaction", "SELL");
+                emitSessionStart()
+              }}
+              mode={
+                transactionSession?.transaction === "SELL" ? "filled" : "ghost"
+              }
+              className="flex-1 "
+              variant="error"
+            >
+              <Button.Icon as={RiArrowRightUpLine} /> Sell
+            </Button.Root></>}
+          {transactionSession?.status === "RUNNING" && (
+            <Button.Root
+              className="flex-1"
+              variant={
+                transactionSession?.status === "RUNNING" ? "error" : "neutral"
+              }
+              mode="stroke"
+              onClick={emitSessionStart}
+            >
               <>
                 <Button.Icon as={RiStopCircleLine} /> Stop
               </>
-            ) : (
-              <>
-                <Button.Icon as={RiPlayCircleLine} /> Start
-              </>
-            )}
-          </Button.Root>
+            </Button.Root>
+          )}
         </div>
       </Card>
     </div>

@@ -11,9 +11,8 @@ const Graph = () => {
     <div className="flex-1 bg-bg-weak-50 flex">
       {token?.contract_address && (
         <iframe
-          src={`https://www.geckoterminal.com/base/pools/${
-            token?.pool_address ?? token?.contract_address
-          }?chart_type=price&embed=1&grayscale=0&info=0&light_chart=0&resolution=15m&swaps=0`}
+          src={`https://www.geckoterminal.com/base/pools/${token?.pool_address ?? token?.contract_address
+            }?chart_type=price&embed=1&grayscale=0&info=0&light_chart=0&resolution=15m&swaps=0`}
           className="flex-1"
           width={"100%"}
           height={"100%"}

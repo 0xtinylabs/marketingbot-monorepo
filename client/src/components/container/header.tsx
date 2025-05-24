@@ -18,6 +18,7 @@ import api from "@/service/api";
 import useWalletStore from "@/store/wallet";
 import clsx from "clsx";
 import toast from "react-hot-toast";
+import useTokenStore from "@/store/token-store";
 
 const Header = () => {
   const { open } = useAppKit();
@@ -32,6 +33,8 @@ const Header = () => {
   const { setWallets, deselectAllWallets } = useWalletStore()
 
   const { available } = useUpdate()
+
+  const { setToken } = useTokenStore()
 
   return (
     <div className="flex justify-between">
@@ -71,6 +74,9 @@ const Header = () => {
           onClick={() => {
             if (address) {
               disconnect();
+              setWallets([])
+              deselectAllWallets()
+              setToken(null)
             } else {
               open();
             }

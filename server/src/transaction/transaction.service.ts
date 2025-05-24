@@ -17,9 +17,11 @@ export class TransactionService {
     public swapService: SwapService,
     public db: DBservice,
     public tokenService: TokenService,
-  ) {}
+  ) { }
+
 
   async startTransactionSession(
+    controller: AbortController,
     data: TransactionSessionType,
     user: User,
     wallets: WalletType[],
@@ -28,11 +30,18 @@ export class TransactionService {
     onEnd: (isLoop: boolean) => void,
     onNewLine: (newLine: TransactionLineType, is_update) => Promise<void>,
   ) {
+
+    if (controller.signal.aborted) {
+      return;
+    }
+
+
     const is_loop = data.type === 'LOOP';
     onStart?.(is_loop, index ?? 0);
 
     let processedWallets = 0;
     for (const wallet of wallets) {
+
       let secondPassed = 0;
       const second =
         data.interval === 'MINMAX'
@@ -127,6 +136,7 @@ export class TransactionService {
     }
     if (is_loop && processedWallets > 0) {
       await this.startTransactionSession(
+        controller,
         data,
         user,
         wallets,

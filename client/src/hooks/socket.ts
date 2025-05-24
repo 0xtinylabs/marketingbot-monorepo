@@ -13,7 +13,7 @@ const useSocket = () => {
 
   const emitSessionStart = () => {
     socket?.emit("session-start", {
-      ...transactionSession,
+      sessionData: transactionSession,
       wallet_address: user?.wallet_address,
     });
   };
@@ -21,6 +21,7 @@ const useSocket = () => {
   const emitSessionStop = () => {
     socket?.emit("session-stop", {
       wallet_address: user?.wallet_address,
+      isLoop: transactionSession?.type === "LOOP"
     });
   };
 

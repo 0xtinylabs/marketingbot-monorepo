@@ -13,7 +13,7 @@ type State = {
 };
 
 const useTransactionSessionStore = create<State>((set, get) => ({
-  transactionSession: null,
+  transactionSession: { interval: "FLAT", max_time: 0, min_time: 0, percentage: 10, type: "SINGLE", is_loop: false, is_flat: true },
   setTransactionSession: (transactionSession) => set({ transactionSession }),
   setTransactionSessionOption: (key, value) =>
     set({ transactionSession: { ...get()?.transactionSession, [key]: value } }),

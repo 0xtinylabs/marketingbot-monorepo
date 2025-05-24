@@ -76,6 +76,7 @@ class SwapService {
       to_token = token_address;
     }
 
+
     const wallet = new ethers.Wallet(wallet_info.private_key);
 
     if (!wallet?.address) {

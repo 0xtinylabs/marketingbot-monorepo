@@ -22,6 +22,8 @@ type State = {
   getRecordsForWallet: (wallet_address: string) => void;
   setWalletRecords: (wallet_address: string, records: RecordType[]) => void;
   addWalletRecord: (wallet_address: string, record: RecordType) => void;
+  clearAllRecordsForWallet: (wallet_address: string, id: string) => void;
+  clearAllRecords: (id: string) => void;
   updateWalletRecord: (
     wallet_address: string,
     id: string,
@@ -33,6 +35,21 @@ type State = {
 const useHistoryRecordStore = create<State>()(
   persist(
     (set, get) => ({
+      clearAllRecords: () => {
+        const walletRecords = {}
+
+        return set({ walletRecords });
+      },
+
+      clearAllRecordsForWallet: (wallet_address, id) => {
+        const walletRecords = get().walletRecords;
+        if (walletRecords[wallet_address]) {
+          walletRecords[wallet_address] = walletRecords[wallet_address].filter(
+            (record) => record.id !== id
+          );
+        }
+        return set({ walletRecords });
+      },
       walletRecords: {},
       addWalletRecord: (wallet_address, record) => {
         const walletRecords = get().walletRecords;

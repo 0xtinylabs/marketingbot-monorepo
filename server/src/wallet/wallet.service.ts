@@ -3,6 +3,7 @@ import { CreateWalletsDto } from './dto/create-wallet.dto';
 import { DBservice } from 'src/db/db.service';
 import { Web3Service } from 'src/web3/web3.service';
 import { WalletType } from 'src/types/common';
+import moralisHttp from 'src/modules/moralis';
 
 @Injectable()
 export class WalletService {
@@ -10,6 +11,40 @@ export class WalletService {
     private db: DBservice,
     private web3Service: Web3Service,
   ) { }
+
+
+
+  async getWalletPublicData(wallet_address: string) {
+    const user = await this.db.getUserForWalletAddress(wallet_address, true);
+    if (!user) {
+      throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+    }
+    const wallets_data: WalletType[] = [];
+    for (const wallet of user.wallets) {
+      const wallet_worth = await moralisHttp.getWalletNetWorth(
+        wallet.wallet_address,
+      );
+      console.log(wallet_worth);
+      const wallet_data: WalletType = {
+        address: wallet.wallet_address,
+        total_eth: parseFloat((wallet_worth.eth ?? 0)),
+        total_usd: parseFloat((wallet_worth.eth ?? 0)),
+        token_usd: parseFloat((wallet_worth.token ?? 0)),
+        index: wallet.index ?? 0,
+      };
+
+      if (user.target_token) {
+        const token_usd = await moralisHttp.getWalletTokenUsdWorth(
+          wallet.wallet_address,
+          user.target_token,
+        );
+        wallet_data.token_usd = token_usd;
+      }
+
+      wallets_data.push(wallet_data);
+    }
+    return wallets_data
+  }
 
   async getAllWallets(wallet_address: string) {
     const user = await this.db.getUserForWalletAddress(wallet_address, true);

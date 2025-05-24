@@ -1,7 +1,7 @@
 "use client";
 import LogoSVG from "@/assets/svg/logo";
-import React from "react";
-import { Root as Button } from "@/components/ui/button";
+import React, { useState } from "react";
+import * as Button from "@/components/ui/button";
 import {
   useAppKit,
   useAppKitAccount,
@@ -13,6 +13,11 @@ import useModalStore from "@/store/modal-store";
 import useUpdate from "@/store/update";
 import * as Badge from "@/components/ui/badge";
 import useTerminalRecordStore from "@/store/terminal-record";
+import { RiRefreshLine } from "@remixicon/react";
+import api from "@/service/api";
+import useWalletStore from "@/store/wallet";
+import clsx from "clsx";
+import toast from "react-hot-toast";
 
 const Header = () => {
   const { open } = useAppKit();
@@ -21,6 +26,10 @@ const Header = () => {
   const { setModal } = useModalStore()
 
   const { getErrorLogsCount } = useTerminalRecordStore()
+
+  const [reloading, setReloading] = useState(false)
+
+  const { setWallets, deselectAllWallets } = useWalletStore()
 
   const { available } = useUpdate()
 
@@ -38,12 +47,25 @@ const Header = () => {
             Update Available
           </Badge.Root>
         </LinkButton.Root>}
+        {address && <Button.Root
+
+
+          onClick={async () => {
+            setReloading(true)
+            const wallets = await api.getAllWallets(address)
+            setWallets(wallets.wallets)
+            deselectAllWallets()
+            toast.success("Wallets reloaded successfully")
+            setReloading(false)
+          }} variant="neutral" mode="ghost">
+          {reloading ? "Reloading" : ""} <Button.Icon className={clsx(reloading ? "animate-spin" : "")} as={RiRefreshLine} />
+        </Button.Root>}
         <LinkButton.Root onClick={() => {
           setModal("terminal")
         }}>Logs
           {getErrorLogsCount() > 0 && <Badge.Root color={'red'}>{getErrorLogsCount()}</Badge.Root>}
         </LinkButton.Root>
-        <Button
+        <Button.Root
           variant={address ? "neutral" : "primary"}
           mode={address ? "stroke" : "filled"}
           onClick={() => {
@@ -55,7 +77,7 @@ const Header = () => {
           }}
         >
           {address ? getWalletString(address) : "Connect"}
-        </Button>
+        </Button.Root>
       </div>
 
     </div>

@@ -3,10 +3,11 @@ import LoginDTO from './dto/login.dto';
 import { DBservice } from 'src/db/db.service';
 import moralis from 'src/modules/moralis';
 import { WalletType } from 'src/types/common';
+import { WalletService } from 'src/wallet/wallet.service';
 
 @Injectable()
 export class AuthService {
-  constructor(public dbService: DBservice) { }
+  constructor(public dbService: DBservice, public walletService: WalletService) { }
   async login(body: LoginDTO) {
     const user = await this.dbService.user.upsert({
       where: {
@@ -25,28 +26,8 @@ export class AuthService {
       throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
     }
 
-    const wallets_data: WalletType[] = [];
-    for (const wallet of user.wallets) {
-      const wallet_worth = await moralis.getWalletNetWorth(
-        wallet.wallet_address,
-      );
-      const wallet_data: WalletType = {
-        address: wallet.wallet_address,
-        total_eth: wallet_worth.eth,
-        total_usd: wallet_worth.usd,
-        index: wallet.index ?? 0,
-      };
 
-      if (user.target_token) {
-        const token_usd = await moralis.getWalletTokenUsdWorth(
-          wallet.wallet_address,
-          user.target_token,
-        );
-        wallet_data.token_usd = token_usd;
-      }
-
-      wallets_data.push(wallet_data);
-    }
+    const wallets_data: WalletType[] = await this.walletService.getWalletPublicData(user.wallet_address);
 
     return {
       user: {

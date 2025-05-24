@@ -24,6 +24,13 @@ export class WalletController {
     return res;
   }
 
+  @WalletRequest()
+  @Get("/get-all")
+  async getAllWallets(@Request() req: WalletAddressedRequest) {
+    const res = await this.walletService.getWalletPublicData(req.wallet_address);
+    return { wallets: res };
+  }
+
   // @UseGuards(new SignatureGuard(SIGNMESSAGES.CREATE_WALLET))
   @WalletRequest()
   @Post('/create-many')

@@ -10,9 +10,25 @@ type State = {
   unselectWallet: (wallet_address: WalletType["address"]) => void;
   deselectAllWallets: () => void;
   toggleWallet: (wallet_address: WalletType["address"]) => void;
+  getWalletsBalanceTotalData: () => { eth: any, usd: any, token_usd: any };
 };
 const useWalletStore = create<State>((set, get) => ({
   wallets: [],
+  getWalletsBalanceTotalData: () => {
+    const result = {
+      eth: 0,
+      usd: 0,
+      token_usd: 0,
+    }
+    get().wallets.forEach((wallet) => {
+      result.eth += wallet.total_eth ?? 0;
+      result.usd += wallet.total_usd ?? 0;
+      result.token_usd += wallet.token_usd ?? 0;
+    });
+    return result;
+
+
+  },
   addWallets: (wallets) => set({ wallets: [...get().wallets, ...wallets] }),
   setWallets: (wallets) => set({ wallets }),
   selectedWallets: [],

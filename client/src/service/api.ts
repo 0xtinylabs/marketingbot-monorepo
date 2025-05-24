@@ -22,6 +22,20 @@ const api = {
     return res.data as LoginResponse;
   },
 
+  getAllWallets: async (
+    wallet_address: string
+  ): Promise<{ wallets: WalletType[] }> => {
+    const res = await baseService.get<{ wallets: WalletType[] }>(
+      "/wallet/get-all",
+      {
+        headers: {
+          "x-wallet_address": wallet_address,
+        },
+      }
+    );
+    return res.data;
+  },
+
   createWallets: async (
     wallet_address: string,
     count: number

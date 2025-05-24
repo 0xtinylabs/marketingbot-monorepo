@@ -20,6 +20,8 @@ import clsx from "clsx";
 import useTransactionSessionStore from "@/store/tranasction-session-store";
 import WalletsContainer from "@/components/wallets-container";
 import useSocket from "@/hooks/socket";
+import useTokenStore from "@/store/token-store";
+import useWalletStore from "@/store/wallet";
 
 const MainSidebar = () => {
   const { setTransactionSessionOption, transactionSession } =
@@ -29,20 +31,24 @@ const MainSidebar = () => {
 
   const { emitSessionStart } = useSocket();
 
+  const { token } = useTokenStore()
+
+  const { getWalletsBalanceTotalData } = useWalletStore()
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <Card className="rounded-t-md border-b-0">
         <CardTitle>Total Value</CardTitle>
-        <CardText>0$</CardText>
+        <CardText>${getWalletsBalanceTotalData().usd}</CardText>
       </Card>
       <div className="flex">
         <Card className="flex-1">
           <CardTitle>ETH Value</CardTitle>
-          <CardText>0$</CardText>
+          <CardText>${getWalletsBalanceTotalData().eth}</CardText>
         </Card>
         <Card className="flex-1">
-          <CardTitle>Token Value</CardTitle>
-          <CardText>0$</CardText>
+          <CardTitle>{token?.ticker ?? "TOKEN"} Value</CardTitle>
+          <CardText>${getWalletsBalanceTotalData().token_usd}</CardText>
         </Card>
       </div>
       <Card className="flex-1 flex flex-col">

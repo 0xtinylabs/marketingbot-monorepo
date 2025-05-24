@@ -33,7 +33,14 @@ class MoralisService {
       },
     });
     if (!res.ok) throw new Error(await res.text());
-    return res.json();
+    const json = await res.json();
+    const data = json?.chains?.[0]
+    const total_worth = json?.total_networth_usd
+    return {
+      eth: data?.native_balance_formatted,
+      usd: total_worth,
+      token: data?.token_balance_usd
+    }
   }
 
   async getWalletTokenUsdWorth(walletAddress: string, token_address: string, chain: string = CHAINS.BASE) {
@@ -47,7 +54,8 @@ class MoralisService {
     });
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
-    return data?.[0]?.usdValue;
+    console.log("TOKEN", data)
+    return data?.result?.[0]?.usdValue;
   }
 
   async getTokenData(addresses: string[], chain: string = CHAINS.BASE_HASH) {

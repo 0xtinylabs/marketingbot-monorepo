@@ -14,6 +14,7 @@ import { TransactionService } from './transaction/transaction.service';
 import { TokenService } from './token/token.service';
 import SwapService from './swap/swap.service';
 import { SessionService } from './session/session.service';
+import { WalletService } from './wallet/wallet.service';
 
 @Module({
   imports: [WalletModule, AuthModule, AppModule, TokenModule, SessionModule],
@@ -27,6 +28,7 @@ import { SessionService } from './session/session.service';
     TransactionService,
     SwapService,
     TokenService,
+    WalletService
   ],
 })
-export class AppModule {}
+export class AppModule { }

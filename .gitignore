@@ -2,3 +2,4 @@ node_modules
 out
 token.txt
 server/main
+server/prisma/data.db

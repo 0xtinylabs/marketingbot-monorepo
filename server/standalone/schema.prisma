@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String   @id @default(uuid())
+  wallet_address      String   @unique
+  wallets             Wallet[]
+  target_token        String?
+  target_token_ticker String?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @default(now()) @updatedAt
+}
+
+model Wallet {
+  id             String   @id @default(uuid())
+  user           User     @relation(fields: [user_id], references: [id])
+  user_id        String
+  wallet_address String   @unique
+  private_key    String
+  mnemonic       String
+  index          Int?
+  created_at     DateTime @default(now())
+  updated_at     DateTime @default(now()) @updatedAt
+}
+
+model Session {
+  id         String                 @id @default(uuid())
+  type       String
+  is_running Boolean
+  time_min   Int
+  time_max   Int?
+  percentage Int
+  is_flat    Boolean
+  is_loop    Boolean
+  records    SessionHistoryRecord[]
+  started_at DateTime               @default(now())
+  ended_at   DateTime               @default(now())
+  created_at DateTime               @default(now())
+  updated_at DateTime               @default(now()) @updatedAt
+}
+
+model SessionHistoryRecord {
+  id           String   @id @default(uuid())
+  type         String
+  is_loop      Boolean
+  is_flat      Boolean
+  is_success   Boolean
+  is_fail      Boolean
+  is_working   Boolean
+  wallet_index Int
+  usd_value    Int
+  token_count  Int
+  ticker       String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
+  Session      Session? @relation(fields: [sessionId], references: [id])
+  sessionId    String?
+}

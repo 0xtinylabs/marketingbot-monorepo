@@ -1,6 +1,6 @@
 {
     "name": "marketing-bot",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "description": "",
     "main": "app/main.js",
     "scripts": {
@@ -8,16 +8,21 @@
         "start:client": "cd client && npm run start",
         "start:client:dev": "cd client && npm run dev",
         "start:server:dev": "cd server && npm run start:dev",
-        "build:server": "cd server && npm run build",
+        "build:server": "cd server && npm run build && pkg dist/main.js --targets node18-macos-arm64",
         "start:server": "cd server && npm run start",
         "start:server:prod": "cd server && npm run build && npm run start",
         "start:client:prod": "cd client && npm run build && npm run start",
         "build:app": "cd app && npm run build",
+        "copy:client": "cp -R ./client/out ./builds/client",
+        "copy:server": "cp ./server/main ./builds/standalone/start_server && cp ./server/node_modules/.prisma/client/libquery_engine-darwin-arm64.dylib.node ./libquery_engine-darwin-arm64.dylib.node && cp ./server/node_modules/.prisma/client/libquery_engine-darwin-arm64.dylib.node ./builds/standalone/libquery_engine-darwin-arm64.dylib.node",
+        "presstart:app": "npm run build:server && npm run build:client && npm run copy:client && npm run copy:server",
         "start:app": "cd app && npm run start",
         "test": "echo \"Error: no test specified\" && exit 1",
         "package": "electron-forge package",
         "make": "electron-forge make",
-        "publish": "GITHUB_TOKEN= electron-forge publish"
+        "prepublish": "npm run prestart:app",
+        "publish": "GITHUB_TOKEN= electron-forge publish",
+        "serve": "lite-server --baseDir='builds/client'"
     },
     "author": "",
     "license": "ISC",
@@ -28,11 +33,12 @@
         "@electron/packager": "^18.3.6",
         "axios": "^1.9.0",
         "child_process": "^1.0.2",
-        "electron-extension-installer": "^1.2.0"
+        "electron-extension-installer": "^1.2.0",
+        "lite-server": "^2.6.1"
     },
     "build": {
         "files": [
-            "client",
+            "builds/client",
             "server"
         ]
     },

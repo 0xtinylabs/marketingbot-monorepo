@@ -1,9 +1,19 @@
 import useTerminalRecordStore from "@/store/terminal-record"
+import useUpdate from "@/store/update"
 import { useEffect } from "react"
 
 const useIpcListener = () => {
 
     const { addLog } = useTerminalRecordStore()
+
+    const { setAvailable } = useUpdate()
+
+    const listenForUpdates = () => {
+        window.electron.receive("update", () => {
+            console.log("Update available")
+            setAvailable(true)
+        })
+    }
 
     const listForTerminalLogs = async () => {
 
@@ -14,6 +24,7 @@ const useIpcListener = () => {
 
     useEffect(() => {
         listForTerminalLogs()
+        listenForUpdates()
     }, [])
 
 }

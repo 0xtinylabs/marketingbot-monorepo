@@ -16,6 +16,7 @@
     "axios": "^1.9.0",
     "electron": "^36.2.1",
     "electron-extension-installer": "^1.2.0",
+    "kill-port": "^2.0.1",
     "nanoid": "^5.1.5",
     "update-electron-app": "^3.1.1",
     "uuid": "^11.1.0"

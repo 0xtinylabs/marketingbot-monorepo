@@ -6,7 +6,7 @@ import { WalletType } from 'src/types/common';
 
 @Injectable()
 export class AuthService {
-  constructor(public dbService: DBservice) {}
+  constructor(public dbService: DBservice) { }
   async login(body: LoginDTO) {
     const user = await this.dbService.user.upsert({
       where: {
@@ -27,7 +27,7 @@ export class AuthService {
 
     const wallets_data: WalletType[] = [];
     for (const wallet of user.wallets) {
-      const wallet_worth = await moralis.getWalletNetworth(
+      const wallet_worth = await moralis.getWalletNetWorth(
         wallet.wallet_address,
       );
       const wallet_data: WalletType = {
@@ -38,7 +38,7 @@ export class AuthService {
       };
 
       if (user.target_token) {
-        const token_usd = await moralis.getWalletTokenUSDWorth(
+        const token_usd = await moralis.getWalletTokenUsdWorth(
           wallet.wallet_address,
           user.target_token,
         );

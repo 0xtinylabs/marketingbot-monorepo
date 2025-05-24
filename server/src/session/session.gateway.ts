@@ -21,7 +21,7 @@ import { SIGNMESSAGES } from 'src/contants';
 import { SessionStartDTO } from './dto/session.dto';
 import { TransactionService } from 'src/transaction/transaction.service';
 
-@WebSocketGateway(82, {
+@WebSocketGateway(3004, {
   cors: {
     origin: '*',
   },
@@ -33,10 +33,10 @@ export class SessionGateway implements OnGatewayConnection {
     private readonly sessionService: SessionService,
     private db: DBservice,
     private transaction: TransactionService,
-  ) {}
+  ) { }
 
   @UseGuards(new SignatureGuard(SIGNMESSAGES.CONNECT_SOCKET))
-  handleConnection(client: any, ...args: any[]) {}
+  handleConnection(client: any, ...args: any[]) { }
 
   emitToUser(socketId: string, event: string, payload: any) {
     this.server.to(socketId).emit(event, payload);

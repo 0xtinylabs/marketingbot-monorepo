@@ -1,0 +1,55 @@
+const https = require('https');
+const { exec } = require('child_process');
+const fs = require('fs');
+
+const owner = 'your-username';
+const repo = 'your-repo';
+const branch = 'main'; // or whatever branch you want
+
+const intervalMs = 61 * 1000; // Check every 1 min
+const file = '.last_commit_hash'; // Local file to store last commit hash
+
+function getLatestCommit(cb) {
+  const options = {
+    hostname: 'api.github.com',
+    path: `/repos/0xtinylabs/marketingbot-monorepo/commits/main`,
+    headers: { 'User-Agent': 'node.js' }
+  };
+  https.get(options, res => {
+    let data = '';
+
+    res.on('data', chunk => data += chunk);
+    console.log(data)
+    res.on('end', () => {
+      const json = JSON.parse(data);
+      cb(json.sha);
+    });
+  });
+}
+
+
+function checkForUpdate(callback) {
+  getLatestCommit(sha => {
+    const lastSha = fs.existsSync(file) ? fs.readFileSync(file, 'utf-8') : '';
+    if (sha !== lastSha && sha && lastSha) {
+      callback?.()
+      fs.writeFileSync(file, sha);
+    } else {
+      console.log('No update');
+    }
+  });
+}
+
+const runUpdateCheck = (callback) => {
+  setInterval(() => {
+    checkForUpdate(callback)
+    console.log('Checking for updates...');
+  }, intervalMs);
+  checkForUpdate(); // Run immediately
+}
+
+module.exports = {
+  checkForUpdate,
+  getLatestCommit,
+  runUpdateCheck
+}

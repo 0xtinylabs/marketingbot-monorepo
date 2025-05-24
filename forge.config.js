@@ -2,13 +2,14 @@ console.log(process.env.GITHUB_TOKEN)
 
 module.exports = {
     makers: [{
-        "name": "@electron-forge/maker-dmg",
+        "name": "@electron-forge/maker-zip",
         "platforms": [
             "darwin"
         ]
     }],
     packagerConfig: {
-        osxSign: {}
+        osxSign: {},
+        files: ["app/**", "build/"],
     },
     publishers: [
         {

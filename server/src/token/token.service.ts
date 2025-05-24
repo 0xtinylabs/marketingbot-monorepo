@@ -7,7 +7,7 @@ import erc20ABI from 'src/app/abi/erc20.abi.json';
 
 @Injectable()
 export class TokenService {
-  constructor(private db: DBservice) {}
+  constructor(private db: DBservice) { }
 
   async getBalanceForToken(token_address: string, wallet: Wallet) {
     try {
@@ -77,7 +77,7 @@ export class TokenService {
   }
 
   async setUserToken(wallet_address: string, body: SetTokenDTO) {
-    const token_data = await moralis.getTokenData(body.token_address);
+    const token_data = await moralis.getTokenData([body.token_address]);
     await this.db.user.update({
       where: {
         wallet_address,

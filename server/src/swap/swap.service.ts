@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
-import axios, { AxiosInstance } from 'axios';
 import { SwapTokenDTO } from './dto/swap.dto';
 import { SwapTransaction } from 'src/types/swap';
 import { ethers } from 'ethers';
@@ -18,13 +17,17 @@ import { base } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 import { TOKENS } from 'src/contants';
 
+
+const axios = require((process as any).pkg ? 'axios/dist/browser/axios.cjs' : "axios");
+const { AxiosInstance } = axios
+
 @Injectable()
 class SwapService {
   public rpc_url = process.env.RPC_URL;
 
   private static swapRoute: string = '/swap/permit2/quote';
 
-  private swapHTTP: AxiosInstance;
+  private swapHTTP: typeof AxiosInstance;
 
   constructor(public tokenService: TokenService) {
     this.swapHTTP = axios.create({

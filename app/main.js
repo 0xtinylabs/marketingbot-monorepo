@@ -1,98 +1,118 @@
-const { updateElectronApp } = require("update-electron-app")
-updateElectronApp()
+const { app, BrowserWindow, ipcMain } = require("electron");
+const { join } = require("path");
+const { spawn } = require("child_process");
+const { v4 } = require("uuid");
 
-const { app, BrowserWindow, session } = require("electron");
-const { join } = require("path")
-const { exec } = require("child_process");
-const { default: axios } = require("axios");
+const dirname = join(__dirname, "..");
+const client_dir = join(dirname, "client");
+const server_dir = join(dirname, "server");
+const app_dir = join(dirname, "app");
 
-const { installExtension } = require("electron-extension-installer")
+const { runUpdateCheck } = require("./check-for-update")
 
-const dirname = join(__dirname, "..")
-const client_dir = join(dirname, "client")
-const server_dir = join(dirname, "server")
-const app_dir = join(dirname, "app")
-
-const metamask_path = join(app_dir, "metamask")
-
-const { v4 } = require("uuid")
 
 let window;
 
-
 const sendLogToWindow = (log) => {
-  if (!window) {
-    return
-  }
-  if (window.webContents && window.webContents.send) {
+  console.log(log);
+  if (window && window.webContents && window.webContents.send) {
     window.webContents.send("log", log);
-  } else {
-    console.error("Window not ready to send logs");
   }
-}
+};
 
+runUpdateCheck(() => {
+  if (window) {
+    console.log("x")
+    window.webContents.send("update");
+  }
+})
+
+let server_process = null;
+let client_process = null;
+
+function killProcessSafe(proc, name) {
+  return new Promise((resolve) => {
+    if (proc && !proc.killed) {
+      proc.on("exit", () => resolve());
+      proc.kill("SIGTERM");
+      setTimeout(() => resolve(), 1000); // Eğer process exit event'i çalışmazsa 1sn sonra yine devam
+    } else {
+      resolve();
+    }
+  });
+}
 
 const runServer = async () => {
-  const res = exec(`cd ${dirname} && npm run start:server:dev`, (error, out, stderr) => {
-    if (error || stderr) {
-      return console.log(error);
-    }
-  })
-  res.on("error", (err) => {
-    sendLogToWindow({
-      type: "server", log: {
-        type: "error",
-        message: err,
-        timestamp: Date.now(),
-        id: v4()
-      }
-    })
-  })
-  res.stdout.on("data", (data) => {
-    console.log(data)
-    sendLogToWindow({
-      type: "server", log: {
-        type: "info",
-        message: data,
-        timestamp: Date.now(),
-        id: v4()
-      }
-    })
-  })
-}
+  await killProcessSafe(server_process, "server");
+
+  // (İstersen buraya kill-port ekle: await kill(3001); vs)
+
+  // Build önce, sonra server başlat
+  await new Promise((resolve) => {
+    const build = spawn("npm", ["run", "build"], { cwd: server_dir, shell: true });
+    build.stdout.on("data", (d) => sendLogToWindow({
+      type: "server", log: { type: "info", message: d.toString(), timestamp: Date.now(), id: v4() }
+    }));
+    build.stderr.on("data", (d) => sendLogToWindow({
+      type: "server", log: { type: "error", message: d.toString(), timestamp: Date.now(), id: v4() }
+    }));
+    build.on("exit", resolve);
+  });
+
+  server_process = spawn("npm", ["run", "start"], { cwd: server_dir, shell: true });
+  server_process.stdout.on("data", (d) => sendLogToWindow({
+    type: "server", log: { type: "info", message: d.toString(), timestamp: Date.now(), id: v4() }
+  }));
+  server_process.stderr.on("data", (d) => sendLogToWindow({
+    type: "server", log: { type: "error", message: d.toString(), timestamp: Date.now(), id: v4() }
+  }));
+  server_process.on("error", (err) => sendLogToWindow({
+    type: "server", log: { type: "error", message: err, timestamp: Date.now(), id: v4() }
+  }));
+};
 
 const runClient = async () => {
-  const res = exec(`cd ${dirname} && npm run start:client:dev`, (error, out, stderr) => {
-    if (error || stderr) {
-      return console.log(error);
-    }
-  })
+  await killProcessSafe(client_process, "client");
+
+  // (İstersen buraya kill-port ekle: await kill(3000); vs)
+
+  // Build önce, sonra client başlat
+  await new Promise((resolve) => {
+    const build = spawn("npm", ["run", "build"], { cwd: client_dir, shell: true });
+    build.stdout.on("data", (d) => sendLogToWindow({
+      type: "client", log: { type: "info", message: d.toString(), timestamp: Date.now(), id: v4() }
+    }));
+    build.stderr.on("data", (d) => sendLogToWindow({
+      type: "client", log: { type: "error", message: d.toString(), timestamp: Date.now(), id: v4() }
+    }));
+    build.on("exit", resolve);
+  });
+
+  await new Promise((resolve) => {
+    const build = spawn("npm", ["run", "build"], { cwd: client_dir, shell: true });
+    build.stdout.on("data", (d) => sendLogToWindow({
+      type: "client", log: { type: "info", message: d.toString(), timestamp: Date.now(), id: v4() }
+    }));
+    build.stderr.on("data", (d) => sendLogToWindow({
+      type: "client", log: { type: "error", message: d.toString(), timestamp: Date.now(), id: v4() }
+    }));
+    build.on("exit", resolve);
+  });
 
 
-  res.on("error", (err) => {
-    sendLogToWindow({
-      type: "client", log: {
-        type: "error",
-        message: err,
-        timestamp: Date.now(),
-        id: v4()
-      }
-    })
-  })
-  res.stdout.on("data", (data) => {
-    sendLogToWindow({
-      type: "client", log: {
-        type: "info",
-        message: data,
-        timestamp: Date.now(),
-        id: v4()
-      }
-    })
-  })
+  client_process = spawn("npm", ["run", "start"], { cwd: client_dir, shell: true });
+  client_process.stdout.on("data", (d) => sendLogToWindow({
+    type: "client", log: { type: "info", message: d.toString(), timestamp: Date.now(), id: v4() }
+  }));
+  client_process.stderr.on("data", (d) => sendLogToWindow({
+    type: "client", log: { type: "error", message: d.toString(), timestamp: Date.now(), id: v4() }
+  }));
+  client_process.on("error", (err) => sendLogToWindow({
+    type: "client", log: { type: "error", message: err, timestamp: Date.now(), id: v4() }
+  }));
+};
 
-}
-
-const createWindow = async () => {
+const createWindow = () => {
   const win = new BrowserWindow({
     fullscreen: true,
     resizable: true,
@@ -104,44 +124,52 @@ const createWindow = async () => {
       nodeIntegration: true,
       contextIsolation: true,
     },
-
   });
-  return win
+  return win;
 };
 
-
 const checkUrl = async () => {
+  const axios = require("axios");
+  while (true) {
+    try {
+      await axios.get("http://localhost:3000");
+      break;
+    } catch {
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
+};
 
-  try {
-    const res = await axios.get("http://localhost:3000")
-    return true
-  }
-  catch {
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 1000)
-    })
-    return await checkUrl()
-  }
-  finally {
-  }
-}
+const startApp = async () => {
+  if (window) window.close();
+  window = createWindow();
+  window.loadFile(join(app_dir, "loading.html"));
 
+  await killProcessSafe(server_process, "server");
+  await killProcessSafe(client_process, "client");
+
+  setTimeout(async () => {
+    await runServer();
+    await runClient();
+    await checkUrl();
+    window.loadURL("http://localhost:3000");
+  }, 1000);
+};
+
+ipcMain.on("reload", async () => {
+  const { exec } = require("child_process");
+  const res = exec(`cd ${dirname} && git pull`);
+  res.on("close", async () => {
+    await startApp();
+  });
+});
 
 app.whenReady().then(async () => {
-  window = await createWindow();
+  await startApp();
+});
 
-
-  window.loadFile(join(app_dir, "loading.html"))
-
-  await runClient()
-  await runServer()
-
-  await checkUrl()
-
-
-
-  window.loadURL("http://localhost:3000")
-
+app.on('window-all-closed', async () => {
+  await killProcessSafe(server_process, "server");
+  await killProcessSafe(client_process, "client");
+  app.quit();
 });

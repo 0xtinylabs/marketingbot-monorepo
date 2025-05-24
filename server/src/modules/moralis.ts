@@ -1,57 +1,82 @@
-import Moralis from 'moralis';
-import { CHAINS } from 'src/types/enum';
+// Node 18+ için: fetch native. Eski Node için: import fetch from 'node-fetch';
+import { CHAINS } from "src/types/enum";
+
+function buildQuery(params: Record<string, any>) {
+  return (
+    "?" +
+    Object.entries(params)
+      .flatMap(([key, val]) => {
+        if (Array.isArray(val)) return val.map((v) => `${encodeURIComponent(key)}=${encodeURIComponent(v)}`);
+        if (val !== undefined && val !== null) return `${encodeURIComponent(key)}=${encodeURIComponent(val)}`;
+        return [];
+      })
+      .join("&")
+  );
+}
 
 class MoralisService {
-  constructor() {
-    this.startService();
-  }
+  constructor(private apiKey: string) { }
 
-  public async startService() {
-    await Moralis.start({
-      apiKey: process.env.MORALIS_API_KEY,
-    });
-  }
-
-  async getWalletTokenUSDWorth(wallet_address: string, token_address: string) {
-    const response = await Moralis.EvmApi.wallets.getWalletTokenBalancesPrice({
-      address: wallet_address,
-      tokenAddresses: [token_address],
-      chain: CHAINS.BASE_HASH,
-    });
-    return response?.result[0]?.usdValue;
-  }
-
-  async getTokenData(token_address: string) {
-    const response = await Moralis.EvmApi.token.getTokenMetadata({
-      addresses: [token_address],
-      chain: CHAINS.BASE_HASH,
-    });
-    return response.raw[0];
-  }
-
-  async getTokenPrice(token_address: string) {
-    const response = await Moralis.EvmApi.token.getTokenPrice({
-      address: token_address,
-      chain: CHAINS.BASE_HASH,
-    });
-    return response.result;
-  }
-
-  async getWalletNetworth(wallet_address: string) {
-    const response = await Moralis.EvmApi.wallets.getWalletNetWorth({
-      excludeSpam: true,
-      excludeUnverifiedContracts: true,
-      address: wallet_address,
+  async getWalletNetWorth(walletAddress: string) {
+    const url = `https://deep-index.moralis.io/api/v2.2/wallets/${walletAddress}/net-worth`;
+    const params = {
+      exclude_spam: true,
+      exclude_unverified_contracts: true,
+      max_token_inactivity: 1,
+      min_pair_side_liquidity_usd: 1000,
       chains: [CHAINS.BASE_HASH],
-    });
-
-    return {
-      usd: response.raw.total_networth_usd,
-      eth: response.raw.chains.find((c) => c.chain === (CHAINS.BASE as string))
-        ?.native_balance_formatted,
     };
+    const res = await fetch(url + buildQuery(params), {
+      headers: {
+        "accept": "application/json",
+        "X-API-Key": this.apiKey,
+      },
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
+
+  async getWalletTokenUsdWorth(walletAddress: string, chain: string = CHAINS.BASE_HASH) {
+    const url = `https://deep-index.moralis.io/api/v2.2/wallets/${walletAddress}/tokens`;
+    const params = { chain };
+    const res = await fetch(url + buildQuery(params), {
+      headers: {
+        "accept": "application/json",
+        "X-API-Key": this.apiKey,
+      },
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    return data?.[0]?.usdValue;
+  }
+
+  async getTokenData(addresses: string[], chain: string = CHAINS.BASE_HASH) {
+    const url = `https://deep-index.moralis.io/api/v2.2/erc20/metadata`;
+    const params = { chain, addresses: addresses.join(",") };
+    const res = await fetch(url + buildQuery(params), {
+      headers: {
+        "accept": "application/json",
+        "X-API-Key": this.apiKey,
+      },
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    return data?.[0];
+  }
+
+  async getTokenPrice(tokenAddress: string, chain: string = CHAINS.BASE_HASH) {
+    const url = `https://deep-index.moralis.io/api/v2.2/erc20/${tokenAddress}/price`;
+    const params = { chain, include: "percent_change" };
+    const res = await fetch(url + buildQuery(params), {
+      headers: {
+        "accept": "application/json",
+        "X-API-Key": this.apiKey,
+      },
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
   }
 }
 
-const moralis = new MoralisService();
-export default moralis;
+const moralisHttp = new MoralisService(process.env.MORALIS_API_KEY!);
+export default moralisHttp;

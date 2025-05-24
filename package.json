@@ -20,7 +20,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "package": "electron-forge package",
         "make": "electron-forge make",
-        "prepublish": "npm run prestart:app",
+        "prepublish": "npm run presstart:app",
         "publish": "GITHUB_TOKEN= electron-forge publish",
         "serve": "lite-server --baseDir='builds/client'"
     },

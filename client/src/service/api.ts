@@ -24,7 +24,6 @@ const api = {
 
   createWallets: async (
     wallet_address: string,
-    signature: string,
     count: number
   ) => {
 
@@ -36,7 +35,6 @@ const api = {
       {
         headers: {
           "x-wallet_address": wallet_address,
-          "x-signature": signature,
         },
       }
     );

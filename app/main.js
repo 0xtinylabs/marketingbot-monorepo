@@ -10,6 +10,7 @@ const app_dir = join(dirname, "app");
 
 const { runUpdateCheck, lastUpdatedFile, lastCommitFile } = require("./check-for-update");
 const { existsSync, write, readFileSync, writeFileSync } = require("fs");
+const killPort = require("kill-port");
 
 
 let window;
@@ -43,6 +44,41 @@ function killProcessSafe(proc, name) {
   });
 }
 
+const runServerDev = async () => {
+  await killProcessSafe(server_process, "server");
+  try {
+
+    await killPort(3004, "tcp")
+  }
+  catch { }
+  server_process = spawn("npm", ["run", "start:dev"], { cwd: server_dir, shell: true });
+  server_process.stdout.on("data", (d) => sendLogToWindow({
+    type: "server", log: { type: "info", message: d.toString(), timestamp: Date.now(), id: v4() }
+  }));
+  server_process.stderr.on("data", (d) => sendLogToWindow({
+    type: "server", log: { type: "error", message: d.toString(), timestamp: Date.now(), id: v4() }
+  }));
+  server_process.on("error", (err) => sendLogToWindow({
+    type: "server", log: { type: "error", message: err, timestamp: Date.now(), id: v4() }
+  }));
+}
+
+const runClientDev = async () => {
+  await killProcessSafe(client_process, "client");
+
+  client_process = spawn("npm", ["run", "dev"], { cwd: client_dir, shell: true });
+  client_process.stdout.on("data", (d) => sendLogToWindow({
+    type: "client", log: { type: "info", message: d.toString(), timestamp: Date.now(), id: v4() }
+  }));
+  client_process.stderr.on("data", (d) => sendLogToWindow({
+    type: "client", log: { type: "error", message: d.toString(), timestamp: Date.now(), id: v4() }
+  }));
+  client_process.on("error", (err) => sendLogToWindow({
+    type: "client", log: { type: "error", message: err, timestamp: Date.now(), id: v4() }
+  }));
+
+}
+
 const runServer = async () => {
   await killProcessSafe(server_process, "server");
 
@@ -60,6 +96,11 @@ const runServer = async () => {
     build.on("exit", resolve);
   });
 
+  try {
+
+    await killPort(3004, "tcp")
+  }
+  catch { }
   server_process = spawn("npm", ["run", "start"], { cwd: server_dir, shell: true });
   server_process.stdout.on("data", (d) => sendLogToWindow({
     type: "server", log: { type: "info", message: d.toString(), timestamp: Date.now(), id: v4() }
@@ -150,8 +191,17 @@ const startApp = async () => {
   await killProcessSafe(client_process, "client");
 
   setTimeout(async () => {
-    await runServer();
-    await runClient();
+
+    if (process.env.APP_ENV === "development") {
+      await runServerDev();
+      await runClientDev();
+    }
+
+    else {
+      await runServer();
+      await runClient();
+    }
+
     await checkUrl();
     window.loadURL("http://localhost:3000");
   }, 1000);

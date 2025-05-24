@@ -32,8 +32,9 @@ function getLatestCommit(cb) {
 function checkForUpdate(callback) {
   getLatestCommit(sha => {
     fs.writeFileSync(lastCommitFile, sha)
-    const last_updated = fs.existsSync(lastUpdatedFile) ? fs.readFileSync(lastUpdatedFile) : '';
+    const last_updated = fs.existsSync(lastUpdatedFile) ? fs.readFileSync(lastUpdatedFile, "utf-8") : '';
 
+    console.log(sha, last_updated)
     if (sha !== last_updated && sha) {
       callback?.()
     } else {

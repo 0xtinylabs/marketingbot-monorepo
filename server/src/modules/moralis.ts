@@ -24,7 +24,7 @@ class MoralisService {
       exclude_unverified_contracts: true,
       max_token_inactivity: 1,
       min_pair_side_liquidity_usd: 1000,
-      chains: [CHAINS.BASE_HASH],
+      chains: CHAINS.BASE,
     };
     const res = await fetch(url + buildQuery(params), {
       headers: {
@@ -36,9 +36,9 @@ class MoralisService {
     return res.json();
   }
 
-  async getWalletTokenUsdWorth(walletAddress: string, chain: string = CHAINS.BASE_HASH) {
+  async getWalletTokenUsdWorth(walletAddress: string, token_address: string, chain: string = CHAINS.BASE) {
     const url = `https://deep-index.moralis.io/api/v2.2/wallets/${walletAddress}/tokens`;
-    const params = { chain };
+    const params = { chain, token_addresses: [token_address] };
     const res = await fetch(url + buildQuery(params), {
       headers: {
         "accept": "application/json",

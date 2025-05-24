@@ -11,10 +11,11 @@ import { SignatureGuard } from 'src/guards/signature.guard';
 import { SIGNMESSAGES } from 'src/contants';
 import { CreateWalletsDto } from './dto/create-wallet.dto';
 import { WalletAddressedRequest } from 'src/types/common';
+import { WalletRequest } from 'src/decorators/method/wallet_address.decorator';
 
 @Controller('wallet')
 export class WalletController {
-  constructor(private readonly walletService: WalletService) {}
+  constructor(private readonly walletService: WalletService) { }
 
   @UseGuards(new SignatureGuard(SIGNMESSAGES.DOWNLOAD_WALLETS))
   @Get('/download')
@@ -23,7 +24,8 @@ export class WalletController {
     return res;
   }
 
-  @UseGuards(new SignatureGuard(SIGNMESSAGES.CREATE_WALLET))
+  // @UseGuards(new SignatureGuard(SIGNMESSAGES.CREATE_WALLET))
+  @WalletRequest()
   @Post('/create-many')
   async createWallets(
     @Body() body: CreateWalletsDto,

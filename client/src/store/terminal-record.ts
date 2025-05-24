@@ -25,12 +25,19 @@ type State = {
     getLogs: (type: "server" | "client") => TerminalRecord[];
     setLogs: (type: "server" | "client", logs: TerminalRecord[]) => void;
     getAllLogs: () => TerminalRecord[];
+    getErrorLogsCount: () => number;
 }
 
 const useTerminalRecordStore = create<State>((set, get) => ({
     logs: {
         server: { logs: [] },
         client: { logs: [] },
+    },
+    getErrorLogsCount: () => {
+        const { server, client } = get().logs;
+        const serverErrorCount = server.logs.filter(log => log.type === "error").length;
+        const clientErrorCount = client.logs.filter(log => log.type === "error").length;
+        return serverErrorCount + clientErrorCount;
     },
     addLog: (type, log) => set((state) => {
         const updatedLogs = [...state.logs[type].logs, log];

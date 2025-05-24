@@ -12,12 +12,15 @@ import * as  LinkButton from "@/components/ui/link-button";
 import useModalStore from "@/store/modal-store";
 import useUpdate from "@/store/update";
 import * as Badge from "@/components/ui/badge";
+import useTerminalRecordStore from "@/store/terminal-record";
 
 const Header = () => {
   const { open } = useAppKit();
   const { address } = useAppKitAccount();
   const { disconnect } = useDisconnect();
   const { setModal } = useModalStore()
+
+  const { getErrorLogsCount } = useTerminalRecordStore()
 
   const { available } = useUpdate()
 
@@ -29,16 +32,20 @@ const Header = () => {
         {available && <LinkButton.Root onClick={() => {
           window.electron.send("reload")
         }}>
-          <Badge.Root>
+          <Badge.Root color="gray" className="!p-3">
 
-            <Badge.Dot></Badge.Dot>
+            <Badge.Dot size="small"></Badge.Dot>
+            Update Available
           </Badge.Root>
-          Update Available
         </LinkButton.Root>}
         <LinkButton.Root onClick={() => {
           setModal("terminal")
-        }}>Terminal</LinkButton.Root>
+        }}>Logs
+          {getErrorLogsCount() > 0 && <Badge.Root color={'red'}>{getErrorLogsCount()}</Badge.Root>}
+        </LinkButton.Root>
         <Button
+          variant={address ? "neutral" : "primary"}
+          mode={address ? "stroke" : "filled"}
           onClick={() => {
             if (address) {
               disconnect();

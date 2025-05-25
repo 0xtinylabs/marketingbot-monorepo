@@ -62,6 +62,7 @@ const useUser = () => {
     try {
       const signature = await signMessage(walletProvider, SIGNMESSAGES.LOGIN);
       if (signature) {
+        toast.dismiss()
         const id = toast.loading("Getting data");
         const res = await api.login(address, signature);
         toast.remove(id);

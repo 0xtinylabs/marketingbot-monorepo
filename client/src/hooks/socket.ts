@@ -2,6 +2,7 @@ import useHistoryRecordStore, { RecordTypeEnum } from "@/store/history-record";
 import useSocketStore from "@/store/socket-store";
 import useTransactionSessionStore from "@/store/tranasction-session-store";
 import useUserStore from "@/store/user-store";
+import useWalletStore from "@/store/wallet";
 import { TransactionLineType } from "@/types/common";
 import { useEffect } from "react";
 
@@ -10,18 +11,20 @@ const useSocket = () => {
   const { transactionSession } = useTransactionSessionStore();
   const { user } = useUserStore();
   const { addWalletRecord } = useHistoryRecordStore();
+  const { selectedWallets } = useWalletStore();
 
   const emitSessionStart = () => {
     socket?.emit("session-start", {
       sessionData: transactionSession,
       wallet_address: user?.wallet_address,
+      wallets: selectedWallets
     });
   };
 
   const emitSessionStop = () => {
     socket?.emit("session-stop", {
       wallet_address: user?.wallet_address,
-      isLoop: transactionSession?.type === "LOOP"
+      isLoop: transactionSession?.type === "LOOP",
     });
   };
 
@@ -29,9 +32,11 @@ const useSocket = () => {
     if (!user?.wallet_address) {
       return;
     }
+    console.log("init socket listeners", user?.wallet_address);
     socket?.on(
       "session-start",
       (data: { isLoop: boolean; loopIndex: number }) => {
+        alert("POP")
         addWalletRecord(user?.wallet_address, {
           type: RecordTypeEnum.START,
           is_loop: data.isLoop,
@@ -57,7 +62,7 @@ const useSocket = () => {
     if (socket) {
       initListeners();
     }
-  }, [socket]);
+  }, [socket, user?.wallet_address]);
 
   return { emitSessionStart, emitSessionStop, socket };
 };

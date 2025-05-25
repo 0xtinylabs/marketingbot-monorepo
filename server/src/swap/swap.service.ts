@@ -77,6 +77,8 @@ class SwapService {
     }
 
 
+
+
     const wallet = new ethers.Wallet(wallet_info.private_key);
 
     if (!wallet?.address) {
@@ -96,6 +98,17 @@ class SwapService {
       toSwapToken: to_token,
       toWalletAddress: wallet.address,
     });
+
+
+
+    if (type === "BUY" && swap?.buyAmount) {
+      const sell_amount = await this.tokenService.convertTokenAmount(
+        swap?.buyAmount,
+        TOKENS.weth,
+        token_address,
+      );
+      await this.tokenService.wrapEther(sell_amount, wallet)
+    }
 
     if (swap?.allowanceTarget) {
       const approveTx = await token.approve(

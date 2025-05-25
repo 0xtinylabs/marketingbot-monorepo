@@ -11,3 +11,9 @@ export type SwapTransaction = {
   source: any;
   user_fee: any;
 };
+
+export type TokenPriceResponse = {
+  price: number;
+  decimals: number;
+  ticker?: string;
+};

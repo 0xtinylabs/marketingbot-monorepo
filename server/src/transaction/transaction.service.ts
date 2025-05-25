@@ -73,6 +73,9 @@ export class TransactionService {
         user.target_token,
         token_amount,
       );
+
+
+
       processedWallets += 1;
 
       onNewLine(

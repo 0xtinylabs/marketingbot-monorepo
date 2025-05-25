@@ -5,6 +5,7 @@ import {
   SubscribeMessage,
   MessageBody,
   WsResponse,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { SessionService } from './session.service';
 import { Server, Socket } from 'socket.io';
@@ -45,7 +46,7 @@ export class SessionGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage("session-stop")
-  async handleSessionStop(client: Socket, @MessageBody() data: SessionStopDTO): Promise<void> {
+  async handleSessionStop(@ConnectedSocket() client: Socket, @MessageBody() data: SessionStopDTO): Promise<void> {
     const controller = this.activeControllers[data.wallet_address];
     if (controller) {
       controller.abort();
@@ -60,70 +61,82 @@ export class SessionGateway implements OnGatewayConnection {
 
   @SubscribeMessage('session-start')
   async handeSessionStart(
-    client: Socket,
+    @ConnectedSocket() client: Socket,
     @MessageBody() data: SessionStartDTO,
   ): Promise<User | null> {
-    const controller = new AbortController();
-    this.activeControllers[data.wallet_address] = controller;
-    const user = await this.db.getUserForWalletAddress(data.wallet_address);
 
-    const session = await this.db.session.create({
-      data: {
-        is_flat: data.sessionData.interval === 'FLAT',
-        is_loop: data.sessionData.type === 'LOOP',
-        is_running: false,
-        percentage: data.sessionData.percentage ?? 10,
-        time_min: data.sessionData.min_time ?? 0,
-        time_max: data.sessionData.max_time,
-        type: data.sessionData.transaction ?? 'BUY',
-      },
-    });
+    console.log(client.id)
+    try {
 
-    if (!user) {
-      throw new Error('');
+      const controller = new AbortController();
+      console.log(client, "client");
+      this.activeControllers[data.wallet_address] = controller;
+      const user = await this.db.getUserForWalletAddress(data.wallet_address);
+
+      const session = await this.db.session.create({
+        data: {
+          is_flat: data.sessionData.interval === 'FLAT',
+          is_loop: data.sessionData.type === 'LOOP',
+          is_running: false,
+          percentage: data.sessionData.percentage ?? 10,
+          time_min: data.sessionData.min_time ?? 0,
+          time_max: data.sessionData.max_time,
+          type: data.sessionData.transaction ?? 'BUY',
+        },
+      });
+
+      console.log("Session created:", session);
+
+      if (!user) {
+        throw new Error('');
+      }
+
+
+      await this.transaction.startTransactionSession(
+        controller,
+        data.sessionData,
+        user,
+        data.wallets,
+        0,
+        async (isLoop, loopIndex) => {
+          client.emit('session-start', {
+            isLoop: isLoop,
+            loopIndex: loopIndex,
+          });
+        },
+        async (isLoop) => {
+          client.emit('session-end', {
+            isLoop: isLoop,
+          });
+        },
+        async (line) => {
+          await this.db.sessionHistoryRecord.create({
+            data: {
+              is_fail: line.status === 'error',
+              is_flat: data.sessionData.interval === 'FLAT',
+              is_loop: data.sessionData.type === 'LOOP',
+              is_success: line.status === 'success',
+              is_working: line.status === 'loading',
+              ticker: user?.target_token_ticker ?? '',
+              token_count: line.token_amount,
+              usd_value: line.usd_value,
+              type: line.type,
+              wallet_index: line.index,
+              Session: {
+                connect: { id: session.id },
+              },
+            },
+          });
+
+          client.emit('session-line', line);
+        },
+      );
+      return user;
+    }
+    catch (error) {
+      console.error('Error starting session:', error);
+      return null
     }
 
-
-    await this.transaction.startTransactionSession(
-      controller,
-      data.sessionData,
-      user,
-      data.wallets,
-      0,
-      async (isLoop, loopIndex) => {
-        client.emit('session-start', {
-          isLoop: isLoop,
-          loopIndex: loopIndex,
-        });
-      },
-      async (isLoop) => {
-        client.emit('session-end', {
-          isLoop: isLoop,
-        });
-      },
-      async (line) => {
-        await this.db.sessionHistoryRecord.create({
-          data: {
-            is_fail: line.status === 'error',
-            is_flat: data.sessionData.interval === 'FLAT',
-            is_loop: data.sessionData.type === 'LOOP',
-            is_success: line.status === 'success',
-            is_working: line.status === 'loading',
-            ticker: user?.target_token_ticker ?? '',
-            token_count: line.token_amount,
-            usd_value: line.usd_value,
-            type: line.type,
-            wallet_index: line.index,
-            Session: {
-              connect: { id: session.id },
-            },
-          },
-        });
-
-        client.emit('session-line', line);
-      },
-    );
-
-    return user;
   }
 }

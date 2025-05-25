@@ -8,4 +8,6 @@ export const SIGNMESSAGES = {
 
 export const TOKENS = {
   ETH: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  weth: '0x4200000000000000000000000000000000000006',
+
 };

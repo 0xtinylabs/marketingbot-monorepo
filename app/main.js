@@ -32,7 +32,12 @@ runUpdateCheck(() => {
 let server_process = null;
 let client_process = null;
 
-function killProcessSafe(proc, name) {
+function killProcessSafe(proc, ports) {
+  for (const port of ports) {
+    killPort(port, "tcp").catch((err) => {
+      console.error(`Error killing port ${port}:`, err);
+    });
+  }
   return new Promise((resolve) => {
     if (proc && !proc.killed) {
       proc.on("exit", () => resolve());
@@ -45,12 +50,8 @@ function killProcessSafe(proc, name) {
 }
 
 const runServerDev = async () => {
-  await killProcessSafe(server_process, "server");
-  try {
+  await killProcessSafe(server_process, "server", [3002, 3004]);
 
-    await killPort(3004, "tcp")
-  }
-  catch { }
   server_process = spawn("npm", ["run", "start:dev"], { cwd: server_dir, shell: true });
   server_process.stdout.on("data", (d) => sendLogToWindow({
     type: "server", log: { type: "info", message: d.toString(), timestamp: Date.now(), id: v4() }
@@ -64,7 +65,9 @@ const runServerDev = async () => {
 }
 
 const runClientDev = async () => {
-  await killProcessSafe(client_process, "client");
+  await killProcessSafe(client_process, "client", [3000]);
+
+
 
   client_process = spawn("npm", ["run", "dev"], { cwd: client_dir, shell: true });
   client_process.stdout.on("data", (d) => sendLogToWindow({
@@ -187,8 +190,8 @@ const startApp = async () => {
   window = createWindow();
   window.loadFile(join(app_dir, "loading.html"));
 
-  await killProcessSafe(server_process, "server");
-  await killProcessSafe(client_process, "client");
+  await killProcessSafe(server_process, [3002, 3004]);
+  await killProcessSafe(client_process, [3000]);
 
   setTimeout(async () => {
 

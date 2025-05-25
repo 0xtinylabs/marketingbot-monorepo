@@ -55,7 +55,7 @@ class MoralisService {
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
     console.log("TOKEN", data)
-    return data?.result?.[0]?.usdValue;
+    return data?.result?.[0]?.usd_value;
   }
 
   async getTokenData(addresses: string[], chain: string = CHAINS.BASE_HASH) {

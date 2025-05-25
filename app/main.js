@@ -209,7 +209,7 @@ const startApp = async () => {
 
 ipcMain.on("reload", async () => {
   const { exec } = require("child_process");
-  const res = exec(`cd ${dirname} && git pull`);
+  const res = exec(`cd ${dirname} && git stash && git pull`);
   const commit = existsSync(lastCommitFile) ? readFileSync(lastCommitFile, "utf-8") : "";
   existsSync(lastUpdatedFile) && writeFileSync(lastUpdatedFile, commit);
   res.on("close", async () => {

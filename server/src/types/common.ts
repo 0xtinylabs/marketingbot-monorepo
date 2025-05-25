@@ -28,7 +28,9 @@ export type TransactionLineType = {
   wallet_index: number;
   usd_value: number;
   ticker: string;
-  token_amount: number;
+  token_amount: bigint;
   status: 'loading' | 'error' | 'success';
   id: string;
+  market_cap: number;
+
 };

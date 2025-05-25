@@ -21,6 +21,7 @@ import { SignatureGuard } from 'src/guards/signature.guard';
 import { SIGNMESSAGES } from 'src/contants';
 import { SessionStartDTO, SessionStopDTO } from './dto/session.dto';
 import { TransactionService } from 'src/transaction/transaction.service';
+import moralisHttp from 'src/modules/moralis';
 
 @WebSocketGateway(3004, {
   cors: {
@@ -90,11 +91,25 @@ export class SessionGateway implements OnGatewayConnection {
       }
 
 
+      const wallet_states = {}
+
+      data.wallets.forEach(wallet => {
+        wallet_states["W" + wallet.index] = {
+          should_process: true,
+          index: wallet.index,
+          address: wallet.address,
+        }
+      })
+
+
+
+
       await this.transaction.startTransactionSession(
         controller,
         data.sessionData,
         user,
         data.wallets,
+        wallet_states,
         0,
         async (isLoop, loopIndex) => {
           client.emit('session-start', {
@@ -108,25 +123,26 @@ export class SessionGateway implements OnGatewayConnection {
           });
         },
         async (line) => {
-          await this.db.sessionHistoryRecord.create({
-            data: {
-              is_fail: line.status === 'error',
-              is_flat: data.sessionData.interval === 'FLAT',
-              is_loop: data.sessionData.type === 'LOOP',
-              is_success: line.status === 'success',
-              is_working: line.status === 'loading',
-              ticker: user?.target_token_ticker ?? '',
-              token_count: line.token_amount,
-              usd_value: line.usd_value,
-              type: line.type,
-              wallet_index: line.index,
-              Session: {
-                connect: { id: session.id },
-              },
-            },
-          });
+          // await this.db.sessionHistoryRecord.create({
+          //   data: {
+          //     is_fail: line.status === 'error',
+          //     is_flat: data.sessionData.interval === 'FLAT',
+          //     is_loop: data.sessionData.type === 'LOOP',
+          //     is_success: line.status === 'success',
+          //     is_working: line.status === 'loading',
+          //     ticker: user?.target_token_ticker ?? '',
+          //     token_count: line.token_amount,
+          //     usd_value: line.usd_value,
+          //     type: line.type,
+          //     wallet_index: line.index,
+          //     Session: {
+          //       connect: { id: session.id },
+          //     },
+          //   },
+          // });
 
-          client.emit('session-line', line);
+
+          client.emit('session-line', { ...line, token_amount: String(line.token_amount) });
         },
       );
       return user;

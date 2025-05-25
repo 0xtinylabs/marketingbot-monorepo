@@ -15,6 +15,8 @@ import { TokenService } from './token/token.service';
 import SwapService from './swap/swap.service';
 import { SessionService } from './session/session.service';
 import { WalletService } from './wallet/wallet.service';
+import { ethers } from 'ethers';
+import { TOKENS } from './contants';
 
 @Module({
   imports: [WalletModule, AuthModule, AppModule, TokenModule, SessionModule],
@@ -31,4 +33,10 @@ import { WalletService } from './wallet/wallet.service';
     WalletService
   ],
 })
-export class AppModule { }
+export class AppModule {
+
+  constructor(public tokenService: TokenService) {
+
+
+  }
+}

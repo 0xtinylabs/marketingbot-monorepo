@@ -69,137 +69,171 @@ class SwapService {
     token_address: string,
     wallet_info: { private_key: string; address: string },
   ) {
-    let from_token;
-    let to_token;
-    if (type === 'SELL') {
-      from_token = token_address;
-      to_token = TOKENS.weth;
-    } else if (type === 'BUY') {
-      from_token = TOKENS.weth;
-      to_token = token_address;
-    }
 
-
-
-
-    const wallet = new ethers.Wallet(wallet_info.private_key, this.provider);
-
-    if (!wallet?.address) {
-      return { error: true, message: 'No user for wallet' };
-    }
-
-    const token = this.tokenService.getTokenContract(from_token, wallet);
-
-
-
-
-
-
-
-
-
-
-
-    const swap = await this.getTransactionForSwap({
-      amount: amount,
-      fromSwapToken: from_token,
-      toSwapToken: to_token,
-      toWalletAddress: wallet.address,
-    });
-
+    let wrap_amount = 0;
 
 
     try {
 
-      if (type === "BUY" && swap?.buyAmount) {
-        const sell_amount = await this.tokenService.convertTokenAmount(
-          swap?.buyAmount,
-          TOKENS.weth,
-          token_address,
-        );
-        await this.tokenService.wrapEther(sell_amount, wallet)
+      let from_token;
+      let to_token;
+      if (type === 'SELL') {
+        from_token = token_address;
+        to_token = TOKENS.weth;
+      } else if (type === 'BUY') {
+        from_token = TOKENS.weth;
+        to_token = token_address;
       }
-    }
-    catch { }
+      const wallet = new ethers.Wallet(wallet_info.private_key, this.provider);
 
-
-    if (swap?.allowanceTarget) {
-      const approveTx = await token.approve(
-        swap?.allowanceTarget,
-        ethers.constants.MaxUint256,
-      );
-
-      const approveResult = await approveTx.wait();
-      if (approveResult?.result === 0) {
-        console.log('COULD NOT APPROVE FOR SWAP: ' + approveResult?.hash);
+      if (!wallet?.address) {
+        return { error: true, message: 'No user for wallet' };
       }
-    }
 
-    const client = createWalletClient({
-      account: privateKeyToAccount(wallet.privateKey as any),
-      transport: http(this.rpc_url),
-      chain: base,
-    }).extend(publicActions);
+      console.log(from_token)
+
+      const token = this.tokenService.getTokenContract(from_token, wallet);
+      console.log(token)
 
 
 
-    if (!client) {
-      return { error: true, message: 'No user for wallet' };
-    }
 
 
-    const signature = await client.signTypedData(swap?.eip712);
-    const signatureLengthInHex = numberToHex(size(signature), {
-      signed: false,
-      size: 32,
-    });
 
-    const transactionData = swap?.data as Hex;
-    const sigLengthHex = signatureLengthInHex as Hex;
-    const sig = signature as Hex;
 
-    const signedData = concat([transactionData, sigLengthHex, sig]);
-    const sleep = async (ms: number) =>
-      new Promise((resolve) => {
-        setTimeout(resolve, ms);
+      const swap = await this.getTransactionForSwap({
+        amount: amount,
+        fromSwapToken: from_token,
+        toSwapToken: to_token,
+        toWalletAddress: wallet.address,
       });
-    await sleep(500);
 
-    const nonce = await client.getTransactionCount({
-      address: client.account.address,
-    });
 
-    const signedTransaction = await client.signTransaction({
-      account: client.account,
-      chain: client.chain,
-      gas: !!swap?.gas ? BigInt(swap?.gas) : undefined,
-      to: swap?.to as any,
-      data: signedData as any,
-      gasPrice: !!swap?.gasPrice ? BigInt(swap?.gasPrice) : undefined,
-      nonce,
-    });
 
-    const tx = await client.sendRawTransaction({
-      serializedTransaction: signedTransaction,
-    });
+      try {
 
-    // Can not get TX hash for swap
-    return { tx: tx, cost: swap?.networkFee };
+        if (type === "BUY" && swap?.buyAmount) {
+          const sell_amount = await this.tokenService.convertTokenAmount(
+            swap?.buyAmount,
+            TOKENS.weth,
+            token_address,
+          );
+          await this.tokenService.wrapEther(sell_amount, wallet)
+          wrap_amount = sell_amount;
+        }
+      }
+      catch (err) {
+        console.log(err)
+      }
+
+
+
+      if (swap?.allowanceTarget) {
+        const approveTx = await token.approve(
+          swap?.allowanceTarget,
+          ethers.constants.MaxUint256,
+        );
+
+        const approveResult = await approveTx.wait();
+        if (approveResult?.result === 0) {
+          console.log('COULD NOT APPROVE FOR SWAP: ' + approveResult?.hash);
+        }
+      }
+
+
+      const client = createWalletClient({
+        account: privateKeyToAccount(wallet.privateKey as any),
+        transport: http(this.rpc_url),
+        chain: base,
+      }).extend(publicActions);
+
+
+
+      if (!client) {
+        return { error: true, message: 'No user for wallet' };
+      }
+
+
+      const signature = await client.signTypedData(swap?.eip712);
+      const signatureLengthInHex = numberToHex(size(signature), {
+        signed: false,
+        size: 32,
+      });
+
+      const transactionData = swap?.data as Hex;
+      const sigLengthHex = signatureLengthInHex as Hex;
+      const sig = signature as Hex;
+
+      const signedData = concat([transactionData, sigLengthHex, sig]);
+      const sleep = async (ms: number) =>
+        new Promise((resolve) => {
+          setTimeout(resolve, ms);
+        });
+      await sleep(500);
+
+      const nonce = await client.getTransactionCount({
+        address: client.account.address,
+      });
+
+      const signedTransaction = await client.signTransaction({
+        account: client.account,
+        chain: client.chain,
+        gas: !!swap?.gas ? BigInt(swap?.gas) : undefined,
+        to: swap?.to as any,
+        data: signedData as any,
+        gasPrice: !!swap?.gasPrice ? BigInt(swap?.gasPrice) : undefined,
+        nonce: nonce + 1,
+      });
+
+      const tx = await client.sendRawTransaction({
+        serializedTransaction: signedTransaction,
+      });
+
+      // Can not get TX hash for swap
+      return { tx: tx, cost: swap?.networkFee };
+    }
+
+
+    catch {
+
+      if (wrap_amount > 0) {
+        try {
+          const wallet = new ethers.Wallet(wallet_info.private_key, this.provider);
+          await this.tokenService.unwrapEther(wrap_amount, wallet);
+        } catch (err) {
+          console.log('UNWRAP ERROR', err);
+          return { error: true, message: 'Error executing swap' };
+        }
+      }
+      return { error: true, message: 'Error executing swap' };
+    }
+
+
+
+
+
+
+
+
+
   }
 
   public async getTransactionForSwap(params: SwapTokenDTO) {
-    console.log(params)
+    console.log("PARAMSx", params)
+    console.log()
     const paramsWithChainID = {
       sellToken: this.handleNativeETH(params.fromSwapToken),
       buyToken: this.handleNativeETH(params.toSwapToken),
       taker: params.toWalletAddress,
-      sellAmount: this.getCorrectAmount(params.fromSwapToken, params.amount),
+      sellAmount: params.amount,
       chainId: 8453,
     };
+    console.log("X")
     try {
       const swapQuote = (await this.swapHTTP.get(SwapService.swapRoute, {
         params: paramsWithChainID,
       })) as any;
+      console.log("SWAP QUOTE", swapQuote, paramsWithChainID);
       const data: SwapTransaction = swapQuote.data?.transaction;
       data.buyAmount = parseFloat(swapQuote?.data?.buyAmount) / 1e18;
       data.allowanceTarget = swapQuote?.data?.issues?.allowance?.spender;
@@ -209,6 +243,7 @@ class SwapService {
       data.user_fee = swapQuote?.data?.fees?.integratorFee?.amount;
       return data;
     } catch (err: any) {
+      console.log("ERRRRRRR")
       console.log(err);
       console.log(err?.response?.data?.data?.details);
       return null;

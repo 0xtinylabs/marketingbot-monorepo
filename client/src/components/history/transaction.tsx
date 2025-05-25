@@ -15,6 +15,7 @@ type PropsType = {
   ticker: string;
   token_amount: number;
   status: "loading" | "error" | "success";
+  market_cap: number;
 };
 
 const TransactionLine = (props: PropsType) => {
@@ -36,11 +37,12 @@ const TransactionLine = (props: PropsType) => {
         </span>
         <span className="text-text-strong-950">W{props.wallet_index}</span>
         <span className="text-text-soft-400">
-          ${numeral(props.usd_value).format("0,00000")}
+          ${(props.usd_value).toFixed(3)}
         </span>
         <span className="text-text-soft-400">${props.ticker}</span>
         <span className="text-text-soft-400">
-          @{numeral(props.token_amount).format("0.00a")}
+          @{numeral(Number(props.market_cap)).format("0.00a")}
+
         </span>
       </div>
       <div>

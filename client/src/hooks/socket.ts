@@ -14,10 +14,10 @@ const useSocket = () => {
   const { selectedWallets } = useWalletStore();
 
 
-  const emitSessionStart = () => {
+  const emitSessionStart = (transaction: "BUY" | "SELL") => {
 
     socket?.emit("session-start", {
-      sessionData: transactionSession,
+      sessionData: { ...transactionSession, transaction },
       wallet_address: user?.wallet_address,
       wallets: selectedWallets
     });
@@ -55,6 +55,7 @@ const useSocket = () => {
         is_loop: data.isLoop,
 
       }, data.id);
+      setTransactionSessionOption("status", "IDLE")
     });
     socket?.on("session-line", (data: TransactionLineType) => {
       if (data.status === "loading") {

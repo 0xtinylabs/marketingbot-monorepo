@@ -29,14 +29,14 @@ const WalletsContainer = () => {
             <div className="flex text-text-soft-400 gap-x-2">
               <div>
                 <span className="text-text-strong-950">
-                  {wallet.total_eth ?? 0}
+                  {(wallet.total_eth ?? 0).toFixed(3)}
                 </span>{" "}
                 ETH
               </div>
               <div>/</div>
               <div>
                 <span className="text-text-strong-950">
-                  ${wallet.token_usd ?? 0}
+                  ${(wallet.token_usd ?? 0).toFixed(2)}
                 </span>{" "}
                 {token?.ticker ?? ""}
               </div>

@@ -17,9 +17,7 @@ export const HistoryStartLabel = (props: StartProps) => {
     <div className="text-text-soft-400 flex justify-between bg-bg-weak-50 text-label-sm p-2">
       <div>
         {props.type === "LOOP"
-          ? props.iteration === 1
-            ? `${props.iteration}. LOOP`
-            : `LOOP`
+          ? `${props.iteration + 1}. LOOP`
           : `SINGLE`}{" "}
         {props.type === "LOOP" && props.iteration > 1 ? "" : "SESSION"}{" "}
         <span className="text-green-600">{`STARTED`}</span>

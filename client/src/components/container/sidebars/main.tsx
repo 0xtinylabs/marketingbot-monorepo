@@ -28,11 +28,11 @@ const MainSidebar = () => {
 
   const [showWallets, setShowWallets] = useState(false);
 
-  const { emitSessionStart } = useSocket();
+  const { emitSessionStart, emitSessionStop } = useSocket();
 
   const { token } = useTokenStore()
 
-  const { getWalletsBalanceTotalData } = useWalletStore()
+  const { getWalletsBalanceTotalData, selectedWallets, deselectAllWallets, selecteAllWallets } = useWalletStore()
 
   console.log(transactionSession)
 
@@ -40,16 +40,16 @@ const MainSidebar = () => {
     <div className="flex-1 flex flex-col overflow-hidden">
       <Card className="rounded-t-md border-b-0">
         <CardTitle>Total Value</CardTitle>
-        <CardText>${getWalletsBalanceTotalData().usd}</CardText>
+        <CardText>${getWalletsBalanceTotalData().usd?.toFixed(2)}</CardText>
       </Card>
       <div className="flex">
         <Card className="flex-1">
           <CardTitle>ETH Value</CardTitle>
-          <CardText>{getWalletsBalanceTotalData().eth}</CardText>
+          <CardText>{getWalletsBalanceTotalData().eth?.toFixed(3)}</CardText>
         </Card>
         <Card className="flex-1">
           <CardTitle>{token?.ticker ?? "TOKEN"} Value</CardTitle>
-          <CardText>${getWalletsBalanceTotalData().token_usd}</CardText>
+          <CardText>${getWalletsBalanceTotalData().token_usd?.toFixed(2)}</CardText>
         </Card>
       </div>
       <Card className="flex-1 flex flex-col">
@@ -61,6 +61,9 @@ const MainSidebar = () => {
           >
             Wallet Settings
             <div className="text-xs flex gap-x-2 items-center">
+              {selectedWallets?.length > 0 && <span className="text-primary-base">{selectedWallets?.length}W</span>}
+              {!showWallets && <span onClick={selecteAllWallets} className="text-text-sub-600">S all</span>}
+              {!showWallets && <span onClick={deselectAllWallets} className="text-text-sub-600">D all</span>}
               <WalletSettingsMenu />
               <Button.Icon
                 onClick={() => {
@@ -188,7 +191,9 @@ const MainSidebar = () => {
             <Button.Root
               onClick={() => {
                 setTransactionSessionOption("transaction", "BUY");
-                emitSessionStart()
+                emitSessionStart("BUY")
+                setTransactionSessionOption("status", "RUNNING")
+
               }}
               variant="primary"
               mode={
@@ -201,7 +206,8 @@ const MainSidebar = () => {
             <Button.Root
               onClick={() => {
                 setTransactionSessionOption("transaction", "SELL");
-                emitSessionStart()
+                setTransactionSessionOption("status", "RUNNING")
+                emitSessionStart("SELL")
               }}
               mode={
                 transactionSession?.transaction === "SELL" ? "filled" : "ghost"
@@ -218,7 +224,7 @@ const MainSidebar = () => {
                 transactionSession?.status === "RUNNING" ? "error" : "neutral"
               }
               mode="stroke"
-              onClick={emitSessionStart}
+              onClick={emitSessionStop}
             >
               <>
                 <Button.Icon as={RiStopCircleLine} /> Stop

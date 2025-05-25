@@ -10,7 +10,7 @@ import useUserStore from "@/store/user-store";
 import TransactionLine from "@/components/history/transaction";
 
 const HistorySidebar = () => {
-  const { walletRecords } = useHistoryRecordStore();
+  const { walletRecords, clearAllRecordsForWallet } = useHistoryRecordStore();
   const { user } = useUserStore();
 
   return (
@@ -18,7 +18,9 @@ const HistorySidebar = () => {
       <Card className="px-0  ">
         <div className="flex-row flex items-center justify-between px-2">
           <CardTitle>History</CardTitle>
-          <LinkButton.Root>clear</LinkButton.Root>
+          <LinkButton.Root onClick={() => {
+            clearAllRecordsForWallet(user?.wallet_address ?? "");
+          }}>clear</LinkButton.Root>
         </div>
       </Card>
       <div className="flex-1 overflow-auto basis-0 self-stretch ">
@@ -56,7 +58,8 @@ const HistorySidebar = () => {
                     type={wallet_record.line?.type ?? "BUY"}
                     index={wallet_record.loop_index ?? 0}
                     usd_value={wallet_record?.line?.usd_value ?? 0}
-                    wallet_index={wallet_record?.line?.index ?? 0}
+                    wallet_index={wallet_record?.line?.wallet_index ?? 0}
+                    market_cap={wallet_record?.line?.market_cap ?? 0}
                   />
                 );
               }

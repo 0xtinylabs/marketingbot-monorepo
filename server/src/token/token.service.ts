@@ -11,6 +11,43 @@ import { TokenPriceResponse } from 'src/types/swap';
 export class TokenService {
   constructor(private db: DBservice) { }
 
+  public async unwrapEther(amount: number, wallet: Wallet) {
+    try {
+      const weth = new ethers.Contract(
+        TOKENS.weth,
+        ['function withdraw(uint256 wad) public'],
+        wallet,
+      );
+      let valueString =
+        0.00001 > parseFloat(Number(amount).toFixed(5))
+          ? 0.00001
+          : parseFloat(Number(amount).toFixed(5));
+      console.log(ethers.utils.parseEther(String(valueString)));
+      const tx = await weth.withdraw(ethers.utils.parseEther(String(valueString)));
+      const res = await tx.wait();
+      return res.hash;
+    } catch (err) {
+      console.log('UNWRAPPING ERROR: ', err);
+    } finally {
+      const balance = await this.getBalanceForToken(TOKENS.weth, wallet);
+      if (balance) {
+        const balance_number = ethers.utils.formatUnits(
+          balance?.balance,
+          balance?.decimals,
+        );
+        if (Number(balance_number) < 0.00001) {
+          const tokenContract = this.getTokenContract(TOKENS.weth, wallet);
+          const approveTX = await tokenContract.approve(
+            TOKENS.weth,
+            ethers.utils.parseUnits('0', 18),
+          );
+          await approveTX.wait();
+        }
+      }
+    }
+  }
+
+
   async getBalanceForToken(token_address: string, wallet: Wallet) {
     try {
       const tokenContract = this.getTokenContract(token_address, wallet);

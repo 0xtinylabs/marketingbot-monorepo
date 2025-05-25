@@ -58,6 +58,22 @@ class MoralisService {
     return data?.result?.[0]?.usd_value;
   }
 
+  async getTokenMarketCap(tokenAddress: string, chain: string = CHAINS.BASE) {
+    const url = `https://deep-index.moralis.io/api/v2.2/discovery/token`
+    const params = { token_address: tokenAddress, chain };
+
+    const res = await fetch(url + buildQuery(params), {
+      headers: {
+        "accept": "application/json",
+        "X-API-Key": this.apiKey,
+      },
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    return data?.market_cap;
+
+  }
+
   async getTokenData(addresses: string[], chain: string = CHAINS.BASE_HASH) {
     const url = `https://deep-index.moralis.io/api/v2.2/erc20/metadata`;
     const params = { chain, addresses: addresses.join(",") };

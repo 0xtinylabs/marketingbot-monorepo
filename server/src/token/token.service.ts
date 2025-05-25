@@ -3,7 +3,7 @@ import SetTokenDTO from './dto/set-token.dto';
 import { DBservice } from 'src/db/db.service';
 import moralis from 'src/modules/moralis';
 import { ethers, Wallet } from 'ethers';
-import erc20ABI from 'src/app/abi/erc20.abi.json';
+import * as erc20ABI from 'src/app/abi/erc20.abi.json';
 import { TOKENS } from 'src/contants';
 import { TokenPriceResponse } from 'src/types/swap';
 
@@ -15,9 +15,11 @@ export class TokenService {
     try {
       const tokenContract = this.getTokenContract(token_address, wallet);
       const balance = await tokenContract.balanceOf(wallet.address);
+      console.log(balance)
       const decimals = await tokenContract.decimals();
       return { balance, decimals };
-    } catch {
+    } catch (err) {
+      console.log("Error", err)
       return null;
     }
   }
@@ -60,6 +62,8 @@ export class TokenService {
   }
 
   public getTokenContract(token_address: string, wallet: Wallet) {
+
+    console.log('Getting token contract for: ', token_address, ' wallet: ', wallet.address);
     const contract = new ethers.Contract(token_address, erc20ABI, wallet);
     contract.connect(wallet);
     return contract;

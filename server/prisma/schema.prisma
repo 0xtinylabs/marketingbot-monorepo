@@ -65,7 +65,7 @@ model SessionHistoryRecord {
   is_working   Boolean
   wallet_index Int
   usd_value    Int
-  token_count  Int
+  token_count  BigInt
   ticker       String
   created_at   DateTime @default(now())
   updated_at   DateTime @default(now()) @updatedAt

@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import { SessionHistoryRecord, User } from '@prisma/client';
 import { ethers } from 'ethers';
+import { TOKENS } from 'src/contants';
 import { DBservice } from 'src/db/db.service';
 import SwapService from 'src/swap/swap.service';
 import { TokenService } from 'src/token/token.service';
@@ -10,9 +11,12 @@ import {
   TransactionSessionType,
   WalletType,
 } from 'src/types/common';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class TransactionService {
+
+  public provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL ?? "")
   constructor(
     public swapService: SwapService,
     public db: DBservice,
@@ -31,13 +35,22 @@ export class TransactionService {
     onNewLine: (newLine: TransactionLineType, is_update) => Promise<void>,
   ) {
 
+
+    const line_id = uuid()
+
     if (controller.signal.aborted) {
       return;
     }
 
 
     const is_loop = data.type === 'LOOP';
+
+    console.log(is_loop);
+
+
     onStart?.(is_loop, index ?? 0);
+
+    console.log('wallets', wallets)
 
     let processedWallets = 0;
     for (const wallet of wallets) {
@@ -55,28 +68,57 @@ export class TransactionService {
           private_key: true,
         },
       });
+
       if (!wallet_info?.private_key || !user.target_token) {
         continue;
       }
-      const client = new ethers.Wallet(wallet_info.private_key);
-      const balance = await this.tokenService.getBalanceForToken(
-        user.target_token ?? '',
-        client,
-      );
+      const client = new ethers.Wallet(wallet_info.private_key, this.provider);
 
-      if (balance?.balance <= 0) {
-        continue;
+
+
+      let balance: any = 0
+      let decimals = 18;
+
+      if (data.transaction === "BUY") {
+        balance = await client.getBalance()
       }
 
-      const token_amount = (balance?.balance * (data.percentage ?? 0)) / 100;
+
+      else {
+        const res = await this.tokenService.getBalanceForToken(
+          user?.target_token ?? '',
+          client,
+        );
+        decimals = res?.decimals ?? 18;
+        balance = res?.balance ?? 0;
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+      const token_amount = (balance * (data.percentage ?? 0)) / 100;
+
+      const token_amount_formatted = ethers.utils.formatUnits(String(Math.floor(token_amount) ?? 0), decimals)
+
       const usd_value = await this.tokenService.getPriceForAmountOfToken(
         user.target_token,
-        token_amount,
+        Number(token_amount_formatted ?? 0),
       );
+
+
 
 
 
       processedWallets += 1;
+
 
       onNewLine(
         {
@@ -87,7 +129,9 @@ export class TransactionService {
           token_amount: token_amount,
           usd_value: usd_value,
           wallet_index: wallet.index ?? 1,
+          id: line_id,
         },
+
         false,
       );
       let interval = setInterval(() => {
@@ -96,10 +140,12 @@ export class TransactionService {
       const response = await this.swapService.executeSwap(
         data.transaction as any,
         data.percentage ?? 0,
+        balance * (data.percentage ?? 0) / 100,
         user.target_token ?? '',
         { address: wallet.address, private_key: wallet_info?.private_key },
       );
       if (secondPassed < second) {
+        clearInterval(interval);
         await new Promise((resolve) => {
           setTimeout(
             () => {
@@ -119,6 +165,7 @@ export class TransactionService {
             token_amount: token_amount,
             usd_value: usd_value,
             wallet_index: wallet.index ?? 1,
+            id: line_id,
           },
           true,
         );
@@ -132,6 +179,7 @@ export class TransactionService {
             token_amount: token_amount,
             usd_value: usd_value,
             wallet_index: wallet.index ?? 1,
+            id: line_id,
           },
           true,
         );

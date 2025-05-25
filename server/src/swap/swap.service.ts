@@ -25,6 +25,8 @@ const { AxiosInstance } = axios
 class SwapService {
   public rpc_url = process.env.RPC_URL;
 
+  public provider = new ethers.providers.JsonRpcProvider(this.rpc_url);
+
   private static swapRoute: string = '/swap/permit2/quote';
 
   private swapHTTP: typeof AxiosInstance;
@@ -34,7 +36,7 @@ class SwapService {
       baseURL: 'https://api.0x.org/',
       headers: {
         '0x-version': 'v2',
-        '0x-api-key': process.env.SWAP_MATCHA_KEY,
+        '0x-api-key': process.env.MATCHA_API_KEY ?? '',
       },
     });
   }
@@ -63,23 +65,24 @@ class SwapService {
   public async executeSwap(
     type: 'BUY' | 'SELL',
     percentage: number,
+    amount: any,
     token_address: string,
     wallet_info: { private_key: string; address: string },
   ) {
     let from_token;
     let to_token;
-    if (type === 'BUY') {
+    if (type === 'SELL') {
       from_token = token_address;
-      to_token = TOKENS.ETH;
-    } else if (type === 'SELL') {
-      from_token = TOKENS.ETH;
+      to_token = TOKENS.weth;
+    } else if (type === 'BUY') {
+      from_token = TOKENS.weth;
       to_token = token_address;
     }
 
 
 
 
-    const wallet = new ethers.Wallet(wallet_info.private_key);
+    const wallet = new ethers.Wallet(wallet_info.private_key, this.provider);
 
     if (!wallet?.address) {
       return { error: true, message: 'No user for wallet' };
@@ -87,13 +90,18 @@ class SwapService {
 
     const token = this.tokenService.getTokenContract(from_token, wallet);
 
-    const balance = await this.tokenService.getBalanceForToken(
-      from_token,
-      wallet,
-    );
+
+
+
+
+
+
+
+
+
 
     const swap = await this.getTransactionForSwap({
-      amount: (balance?.balance * percentage) / 100,
+      amount: amount,
       fromSwapToken: from_token,
       toSwapToken: to_token,
       toWalletAddress: wallet.address,
@@ -101,14 +109,19 @@ class SwapService {
 
 
 
-    if (type === "BUY" && swap?.buyAmount) {
-      const sell_amount = await this.tokenService.convertTokenAmount(
-        swap?.buyAmount,
-        TOKENS.weth,
-        token_address,
-      );
-      await this.tokenService.wrapEther(sell_amount, wallet)
+    try {
+
+      if (type === "BUY" && swap?.buyAmount) {
+        const sell_amount = await this.tokenService.convertTokenAmount(
+          swap?.buyAmount,
+          TOKENS.weth,
+          token_address,
+        );
+        await this.tokenService.wrapEther(sell_amount, wallet)
+      }
     }
+    catch { }
+
 
     if (swap?.allowanceTarget) {
       const approveTx = await token.approve(
@@ -128,9 +141,12 @@ class SwapService {
       chain: base,
     }).extend(publicActions);
 
+
+
     if (!client) {
       return { error: true, message: 'No user for wallet' };
     }
+
 
     const signature = await client.signTypedData(swap?.eip712);
     const signatureLengthInHex = numberToHex(size(signature), {
@@ -147,7 +163,7 @@ class SwapService {
       new Promise((resolve) => {
         setTimeout(resolve, ms);
       });
-    await sleep(4000);
+    await sleep(500);
 
     const nonce = await client.getTransactionCount({
       address: client.account.address,
@@ -172,10 +188,10 @@ class SwapService {
   }
 
   public async getTransactionForSwap(params: SwapTokenDTO) {
+    console.log(params)
     const paramsWithChainID = {
       sellToken: this.handleNativeETH(params.fromSwapToken),
       buyToken: this.handleNativeETH(params.toSwapToken),
-      slippageBps: params?.slippage ? params.slippage * 100 : undefined,
       taker: params.toWalletAddress,
       sellAmount: this.getCorrectAmount(params.fromSwapToken, params.amount),
       chainId: 8453,

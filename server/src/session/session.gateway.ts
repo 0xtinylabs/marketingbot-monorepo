@@ -65,7 +65,6 @@ export class SessionGateway implements OnGatewayConnection {
     @MessageBody() data: SessionStartDTO,
   ): Promise<User | null> {
 
-    console.log(client.id)
     try {
 
       const controller = new AbortController();
@@ -80,12 +79,11 @@ export class SessionGateway implements OnGatewayConnection {
           is_running: false,
           percentage: data.sessionData.percentage ?? 10,
           time_min: data.sessionData.min_time ?? 0,
-          time_max: data.sessionData.max_time,
+          time_max: data.sessionData.max_time ?? 0,
           type: data.sessionData.transaction ?? 'BUY',
         },
       });
 
-      console.log("Session created:", session);
 
       if (!user) {
         throw new Error('');

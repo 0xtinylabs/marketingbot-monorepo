@@ -8,6 +8,9 @@ const useIpcListener = () => {
 
     const { setAvailable } = useUpdate()
 
+
+
+
     const listenForUpdates = () => {
         window.electron.receive("update", () => {
             console.log("Update available")

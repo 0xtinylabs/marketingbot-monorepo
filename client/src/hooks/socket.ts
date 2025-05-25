@@ -8,12 +8,14 @@ import { useEffect } from "react";
 
 const useSocket = () => {
   const { socket } = useSocketStore();
-  const { transactionSession } = useTransactionSessionStore();
+  const { transactionSession, setTransactionSessionOption } = useTransactionSessionStore();
   const { user } = useUserStore();
-  const { addWalletRecord } = useHistoryRecordStore();
+  const { addWalletRecord, updateWalletRecord } = useHistoryRecordStore();
   const { selectedWallets } = useWalletStore();
 
+
   const emitSessionStart = () => {
+
     socket?.emit("session-start", {
       sessionData: transactionSession,
       wallet_address: user?.wallet_address,
@@ -26,6 +28,7 @@ const useSocket = () => {
       wallet_address: user?.wallet_address,
       isLoop: transactionSession?.type === "LOOP",
     });
+    setTransactionSessionOption("status", "IDLE")
   };
 
   const initListeners = () => {
@@ -35,26 +38,35 @@ const useSocket = () => {
     console.log("init socket listeners", user?.wallet_address);
     socket?.on(
       "session-start",
-      (data: { isLoop: boolean; loopIndex: number }) => {
+      (data: { isLoop: boolean; loopIndex: number, id: string }) => {
 
         addWalletRecord(user?.wallet_address, {
           type: RecordTypeEnum.START,
           is_loop: data.isLoop,
           loop_index: data.loopIndex,
-        });
+
+
+        }, data.id);
       }
     );
-    socket?.on("session-end", (data: { isLoop: boolean }) => {
+    socket?.on("session-end", (data: { isLoop: boolean, id: string }) => {
       addWalletRecord(user?.wallet_address, {
         type: RecordTypeEnum.END,
         is_loop: data.isLoop,
-      });
+
+      }, data.id);
     });
     socket?.on("session-line", (data: TransactionLineType) => {
-      addWalletRecord(user?.wallet_address, {
-        type: RecordTypeEnum.NORMAL,
-        line: data,
-      });
+      if (data.status === "loading") {
+
+        addWalletRecord(user?.wallet_address, {
+          type: RecordTypeEnum.NORMAL,
+          line: data,
+        }, data.id);
+      }
+      else {
+        updateWalletRecord(user?.wallet_address, data.id, "line", data);
+      }
     });
   };
 

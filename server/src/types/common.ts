@@ -30,4 +30,5 @@ export type TransactionLineType = {
   ticker: string;
   token_amount: number;
   status: 'loading' | 'error' | 'success';
+  id: string;
 };

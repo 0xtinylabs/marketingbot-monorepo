@@ -36,7 +36,7 @@ const useSocket = () => {
     socket?.on(
       "session-start",
       (data: { isLoop: boolean; loopIndex: number }) => {
-        alert("POP")
+
         addWalletRecord(user?.wallet_address, {
           type: RecordTypeEnum.START,
           is_loop: data.isLoop,

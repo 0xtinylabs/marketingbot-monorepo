@@ -45,7 +45,7 @@ const MainSidebar = () => {
       <div className="flex">
         <Card className="flex-1">
           <CardTitle>ETH Value</CardTitle>
-          <CardText>${getWalletsBalanceTotalData().eth}</CardText>
+          <CardText>{getWalletsBalanceTotalData().eth}</CardText>
         </Card>
         <Card className="flex-1">
           <CardTitle>{token?.ticker ?? "TOKEN"} Value</CardTitle>

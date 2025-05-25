@@ -28,7 +28,7 @@ export class WalletService {
       const wallet_data: WalletType = {
         address: wallet.wallet_address,
         total_eth: parseFloat((wallet_worth.eth ?? 0)),
-        total_usd: parseFloat((wallet_worth.eth ?? 0)),
+        total_usd: parseFloat((wallet_worth.usd ?? 0)),
         token_usd: parseFloat((wallet_worth.token ?? 0)),
         index: wallet.index ?? 0,
       };

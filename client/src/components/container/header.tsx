@@ -19,6 +19,7 @@ import useWalletStore from "@/store/wallet";
 import clsx from "clsx";
 import toast from "react-hot-toast";
 import useTokenStore from "@/store/token-store";
+import useTransactionSessionStore from "@/store/tranasction-session-store";
 
 const Header = () => {
   const { open } = useAppKit();
@@ -29,6 +30,8 @@ const Header = () => {
   const { getErrorLogsCount } = useTerminalRecordStore()
 
   const [reloading, setReloading] = useState(false)
+
+  const { setTransactionSession } = useTransactionSessionStore()
 
   const { setWallets, deselectAllWallets } = useWalletStore()
 
@@ -56,6 +59,15 @@ const Header = () => {
           onClick={async () => {
             setReloading(true)
             const wallets = await api.getAllWallets(address)
+
+            setTransactionSession({
+              interval: "FLAT",
+              max_time: 0,
+              min_time: 10,
+              percentage: 10,
+              status: "IDLE",
+              type: "SINGLE"
+            })
             setWallets(wallets.wallets)
             deselectAllWallets()
             toast.success("Wallets reloaded successfully")

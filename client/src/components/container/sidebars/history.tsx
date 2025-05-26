@@ -59,7 +59,7 @@ const HistorySidebar = () => {
                     index={wallet_record.loop_index ?? 0}
                     usd_value={wallet_record?.line?.usd_value ?? 0}
                     wallet_index={wallet_record?.line?.wallet_index ?? 0}
-                    market_cap={wallet_record?.line?.market_cap ?? 0}
+                    market_cap={wallet_record?.line?.market_cap ?? 0} tx={wallet_record?.line?.tx ?? ""}
                   />
                 );
               }

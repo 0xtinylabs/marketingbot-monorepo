@@ -75,13 +75,15 @@ const useUser = () => {
         const id = toast.loading("Getting data");
         const res = await api.login(address, signature);
         toast.remove(id);
-        loginUser(res.user);
+        if (res.user) {
+          loginUser(res.user);
+        }
         setWallets(res.wallets);
         setToken(res.token);
         deselectAllWallets();
       }
     } catch {
-      disconnect();
+      // disconnect();
     }
   };
 

@@ -91,6 +91,7 @@ const MainSidebar = () => {
                   parseInt(e.target.value)
                 );
               }}
+              type="number"
               placeholder="Add percentage..."
             />
             <Input.Icon as={RiPercentLine} />

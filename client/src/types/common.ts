@@ -37,4 +37,5 @@ export type TransactionLineType = {
   status: "loading" | "error" | "success";
   id: string,
   market_cap: number;
+  tx?: string;
 };

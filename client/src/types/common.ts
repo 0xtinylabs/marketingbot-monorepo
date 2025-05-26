@@ -8,6 +8,7 @@ export type WalletType = {
   token_usd: number;
   address: string;
   index?: number;
+  eth_usd?: number;
 };
 
 export type TokenType = {

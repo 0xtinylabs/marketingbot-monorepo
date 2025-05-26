@@ -5,7 +5,6 @@ import * as Button from "@/components/ui/button";
 import {
   useAppKit,
   useAppKitAccount,
-  useDisconnect,
 } from "@reown/appkit/react";
 import { getWalletString } from "@/helpers/string";
 import * as  LinkButton from "@/components/ui/link-button";
@@ -13,18 +12,18 @@ import useModalStore from "@/store/modal-store";
 import useUpdate from "@/store/update";
 import * as Badge from "@/components/ui/badge";
 import useTerminalRecordStore from "@/store/terminal-record";
-import { RiRefreshLine } from "@remixicon/react";
+import { RiRefreshLine, RiServerLine } from "@remixicon/react";
 import api from "@/service/api";
 import useWalletStore from "@/store/wallet";
 import clsx from "clsx";
 import toast from "react-hot-toast";
-import useTokenStore from "@/store/token-store";
 import useTransactionSessionStore from "@/store/tranasction-session-store";
+import useUser from "@/hooks/use-user";
+import useStatusStore from "@/store/status";
 
 const Header = () => {
   const { open } = useAppKit();
   const { address } = useAppKitAccount();
-  const { disconnect } = useDisconnect();
   const { setModal } = useModalStore()
 
   const { getErrorLogsCount } = useTerminalRecordStore()
@@ -37,7 +36,11 @@ const Header = () => {
 
   const { available } = useUpdate()
 
-  const { setToken } = useTokenStore()
+  const { status } = useStatusStore()
+
+
+
+  const { logout } = useUser()
 
   return (
     <div className="flex justify-between">
@@ -75,6 +78,15 @@ const Header = () => {
           }} variant="neutral" mode="ghost">
           {reloading ? "Reloading" : ""} <Button.Icon className={clsx(reloading ? "animate-spin" : "")} as={RiRefreshLine} />
         </Button.Root>}
+        <Button.Root onClick={() => {
+          if (status === "down") {
+            window.electron.send("restart-server")
+          }
+        }} mode="lighter" className="relative" variant="neutral">
+          <Button.Icon as={RiServerLine} />
+          <div className={clsx("absolute w-[6px] aspect-square rounded-full", "top-[4px] left-[4px]", status === "up" ? "bg-green-500" : "bg-red-500")}></div>
+
+        </Button.Root>
         <LinkButton.Root onClick={() => {
           setModal("terminal")
         }}>Logs
@@ -85,10 +97,7 @@ const Header = () => {
           mode={address ? "stroke" : "filled"}
           onClick={() => {
             if (address) {
-              disconnect();
-              setWallets([])
-              deselectAllWallets()
-              setToken(null)
+              logout()
             } else {
               open();
             }

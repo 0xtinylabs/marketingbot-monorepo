@@ -64,7 +64,6 @@ class SwapService {
 
   public async executeSwap(
     type: 'BUY' | 'SELL',
-    percentage: number,
     amount: any,
     token_address: string,
     wallet_info: { private_key: string; address: string },
@@ -107,6 +106,8 @@ class SwapService {
         toSwapToken: to_token,
         toWalletAddress: wallet.address,
       });
+
+      console.log("SWAP", swap);
 
 
 
@@ -182,20 +183,21 @@ class SwapService {
         to: swap?.to as any,
         data: signedData as any,
         gasPrice: !!swap?.gasPrice ? BigInt(swap?.gasPrice) : undefined,
-        nonce: nonce + 1,
+        nonce: nonce,
       });
 
       const tx = await client.sendRawTransaction({
         serializedTransaction: signedTransaction,
       });
 
+
       // Can not get TX hash for swap
-      return { tx: tx, cost: swap?.networkFee };
+      return { buy_amount: swap?.buyAmount, tx: tx, cost: swap?.networkFee };
     }
 
 
-    catch {
-
+    catch (err) {
+      console.log('SWAP ERROR', err);
       if (wrap_amount > 0) {
         try {
           const wallet = new ethers.Wallet(wallet_info.private_key, this.provider);
@@ -234,7 +236,7 @@ class SwapService {
         params: paramsWithChainID,
       })) as any;
       console.log("SWAP QUOTE", swapQuote, paramsWithChainID);
-      const data: SwapTransaction = swapQuote.data?.transaction;
+      const data: SwapTransaction = swapQuote.data?.transaction ?? {};
       data.buyAmount = parseFloat(swapQuote?.data?.buyAmount) / 1e18;
       data.allowanceTarget = swapQuote?.data?.issues?.allowance?.spender;
       data.networkFee = swapQuote?.data?.totalNetworkFee;

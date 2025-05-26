@@ -16,11 +16,16 @@ type PropsType = {
   token_amount: number;
   status: "loading" | "error" | "success";
   market_cap: number;
+  tx: string
 };
 
 const TransactionLine = (props: PropsType) => {
   return (
-    <div className="flex justify-between px-2 text-label-sm py-3">
+    <div onClick={() => {
+      if (props.tx) {
+        window.electron.openExternal("https://basescan.org/tx/" + props.tx);
+      }
+    }} className="flex justify-between px-2 text-label-sm py-3">
       <div className="flex gap-x-1  items-center">
         <span className="text-text-soft-400">{props.index}</span>
         <span>

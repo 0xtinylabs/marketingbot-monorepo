@@ -5,6 +5,7 @@ export type WalletType = {
   total_usd: any;
   address: string;
   token_usd?: any;
+  eth_usd?: any;
   index?: number;
 };
 
@@ -32,5 +33,5 @@ export type TransactionLineType = {
   status: 'loading' | 'error' | 'success';
   id: string;
   market_cap: number;
-
+  tx?: string
 };

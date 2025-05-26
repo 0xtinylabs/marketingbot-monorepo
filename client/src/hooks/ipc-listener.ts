@@ -1,3 +1,4 @@
+import useStatusStore from "@/store/status"
 import useTerminalRecordStore from "@/store/terminal-record"
 import useUpdate from "@/store/update"
 import { useEffect } from "react"
@@ -7,6 +8,7 @@ const useIpcListener = () => {
     const { addLog } = useTerminalRecordStore()
 
     const { setAvailable } = useUpdate()
+    const { setStatus } = useStatusStore()
 
 
 
@@ -15,6 +17,15 @@ const useIpcListener = () => {
         window.electron.receive("update", () => {
             console.log("Update available")
             setAvailable(true)
+        })
+    }
+
+    const listnForServerStatus = () => {
+        window.electron.receive("server-down", () => {
+            setStatus("down")
+        })
+        window.electron.receive("server-up", () => {
+            setStatus("up")
         })
     }
 
@@ -28,6 +39,7 @@ const useIpcListener = () => {
     useEffect(() => {
         listForTerminalLogs()
         listenForUpdates()
+        listnForServerStatus()
     }, [])
 
 }

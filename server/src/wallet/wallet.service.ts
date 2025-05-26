@@ -4,6 +4,7 @@ import { DBservice } from 'src/db/db.service';
 import { Web3Service } from 'src/web3/web3.service';
 import { WalletType } from 'src/types/common';
 import moralisHttp from 'src/modules/moralis';
+import { TOKENS } from 'src/contants';
 
 @Injectable()
 export class WalletService {
@@ -20,16 +21,21 @@ export class WalletService {
       throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
     }
     const wallets_data: WalletType[] = [];
+    const eth_price_res = await moralisHttp.getTokenPrice(TOKENS.weth);
+    const eth_price = parseFloat(eth_price_res.usdPrice ?? '0');
+
     for (const wallet of user.wallets) {
       const wallet_worth = await moralisHttp.getWalletNetWorth(
         wallet.wallet_address,
       );
+
       console.log(wallet_worth);
       const wallet_data: WalletType = {
         address: wallet.wallet_address,
         total_eth: parseFloat((wallet_worth.eth ?? 0)),
         total_usd: parseFloat((wallet_worth.usd ?? 0)),
         token_usd: parseFloat((wallet_worth.token ?? 0)),
+        eth_usd: eth_price * parseFloat((wallet_worth.eth ?? 0)),
         index: wallet.index ?? 0,
       };
 

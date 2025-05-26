@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, shell: ElectronShell } = require("electron");
 const { join } = require("path");
 const { spawn } = require("child_process");
 const { v4 } = require("uuid");
@@ -41,7 +41,7 @@ function killProcessSafe(proc, ports) {
     if (proc && !proc.killed) {
       proc.on("exit", () => resolve());
       proc.kill("SIGTERM");
-      setTimeout(() => resolve(), 1000); // Eğer process exit event'i çalışmazsa 1sn sonra yine devam
+      setTimeout(() => resolve(), 1000);
     } else {
       resolve();
     }
@@ -172,17 +172,39 @@ const createWindow = () => {
   return win;
 };
 
-const checkUrl = async () => {
+const checkUrl = async (url) => {
   const axios = require("axios");
   while (true) {
     try {
-      await axios.get("http://localhost:3000");
+      await axios.get(url);
       break;
     } catch {
       await new Promise(r => setTimeout(r, 1000));
     }
   }
 };
+
+const checkUrlStatus = async (url) => {
+  const axios = require("axios");
+  try {
+    const response = await axios.get(url);
+    return response.status > 199 && response.status < 300;
+  } catch (error) {
+    console.error(`Error checking URL ${url}`);
+    return false;
+  }
+}
+
+setInterval(() => {
+  checkUrlStatus("http://localhost:3002").then(s => {
+    if (!s && window) {
+      window.webContents.send("server-down");
+    }
+    if (s && window) {
+      window.webContents.send("server-up");
+    }
+  })
+}, 1000)
 
 const startApp = async () => {
   if (window) window.close();
@@ -204,7 +226,8 @@ const startApp = async () => {
       await runClient();
     }
 
-    await checkUrl();
+    await checkUrl("http://localhost:3000");
+
     window.loadURL("http://localhost:3000");
   }, 1000);
 };
@@ -218,6 +241,21 @@ ipcMain.on("reload", async () => {
     await startApp();
   });
 });
+
+ipcMain.on("open-external", (event, url) => {
+  ElectronShell.openExternal(url);
+});
+
+ipcMain.on("restart-server", async () => {
+  await killProcessSafe(server_process, "server");
+  console.log("Server process killed");
+  if (process.env.APP_ENV === "development") {
+    await runServerDev();
+  }
+  else {
+    await runServer();
+  }
+})
 
 app.whenReady().then(async () => {
   await startApp();

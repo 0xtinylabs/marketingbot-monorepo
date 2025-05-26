@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import { SessionHistoryRecord, User } from '@prisma/client';
-import { ethers } from 'ethers';
+import { ethers, Wallet } from 'ethers';
 import { TOKENS } from 'src/contants';
 import { DBservice } from 'src/db/db.service';
 import birdeyeHTTP from 'src/modules/birdeye';
@@ -23,10 +23,29 @@ export class TransactionService {
     public swapService: SwapService,
     public db: DBservice,
     public tokenService: TokenService,
-  ) { }
+  ) {
+    this.provider.on("error", async () => {
+      console.log('Provider error, trying to reconnect...');
+    })
+  }
 
 
 
+
+  async sendReplacementTransaction(wallet: Wallet) {
+
+    const nonce = await this.provider.getTransactionCount(wallet.address, "pending");
+    const tx = {
+      to: wallet.address,
+      value: 0,
+      nonce,
+      gasLimit: 21000,
+      maxFeePerGas: ethers.utils.parseUnits('80', 'gwei'),
+      maxPriorityFeePerGas: ethers.utils.parseUnits('2', 'gwei'),
+    };
+    const sentTx = await wallet.sendTransaction(tx);
+
+  }
 
 
   async startTransactionSession(
@@ -68,6 +87,10 @@ export class TransactionService {
       let processedWallets = 0;
 
       const processWallet = async (wallet: WalletType) => {
+
+
+
+
         if (controller.signal.aborted) {
           return;
         }
@@ -95,6 +118,35 @@ export class TransactionService {
             return;
           }
           const client = new ethers.Wallet(wallet_info.private_key, this.provider);
+
+          let second_passed = 0;
+          setInterval(() => {
+            second_passed += 1;
+            if (second_passed > 15) {
+              this.sendReplacementTransaction(client).then(() => {
+                wallet_states[`W${wallet.index}`] = {
+                  should_process: true,
+                  index: wallet.index,
+                  address: wallet.address,
+                };
+                onNewLine({
+                  index: index,
+                  status: 'error',
+                  type: data.transaction as any,
+                  ticker: user.target_token_ticker ?? '',
+                  token_amount: BigInt(0),
+                  usd_value: 0,
+                  wallet_index: wallet.index ?? 1,
+                  id: line_id,
+                  market_cap: 0,
+                  tx: 'Replacement transaction sent',
+                }, true);
+              })
+
+            }
+            return
+          }, 1000)
+
 
 
 
@@ -126,13 +178,13 @@ export class TransactionService {
 
 
 
-          const token_amount = (balance * (data.percentage ?? 0)) / 100;
+          const token_amount = (BigInt(balance) * (BigInt(data.percentage ?? 0) ?? BigInt(0))) / BigInt(100);
+
+          console.log('token_amount', token_amount, 'balance', balance, 'decimals', decimals)
 
 
 
-          const amount_fixed = BigInt(token_amount?.toString().replace(/\..*$/, ""))
-          console.log('amount_fixed', amount_fixed)
-          const token_amount_formatted = ethers.utils.formatUnits(amount_fixed, decimals)
+          const token_amount_formatted = ethers.utils.formatUnits(token_amount, decimals)
 
 
           const usd_value = await this.tokenService.getPriceForAmountOfToken(
@@ -140,11 +192,8 @@ export class TransactionService {
             Number(token_amount_formatted) ?? 0,
           );
 
-          console.log('usd_value', token_amount, usd_value, 'token_amount_formatted', token_amount_formatted, 'amount_fixed', amount_fixed, 'decimals', decimals)
+          console.log('usd_value', balance.toString(), token_amount, usd_value, 'token_amount_formatted', token_amount_formatted, 'amount_fixed', token_amount, 'decimals', decimals)
 
-          // if ((usd_value as any) !== false) {
-          //   return
-          // }
 
 
 
@@ -159,7 +208,7 @@ export class TransactionService {
               status: 'loading',
               type: data.transaction as any,
               ticker: user.target_token_ticker ?? '',
-              token_amount: amount_fixed,
+              token_amount: token_amount,
               usd_value: usd_value,
               wallet_index: wallet.index ?? 1,
               id: line_id,
@@ -172,11 +221,18 @@ export class TransactionService {
 
           const response = await this.swapService.executeSwap(
             data.transaction as any,
-            data.percentage ?? 0,
-            amount_fixed,
+            token_amount,
             user.target_token ?? '',
             { address: wallet.address, private_key: wallet_info?.private_key },
           );
+
+          if (data?.transaction === "SELL" && response?.buy_amount) {
+            try {
+
+              await this.tokenService.unwrapEther(response?.buy_amount, client)
+            }
+            catch (error) { }
+          }
 
           wallet_states[`W${wallet.index}`] = {
             should_process: true,
@@ -191,11 +247,12 @@ export class TransactionService {
                 status: 'error',
                 type: data.transaction as any,
                 ticker: user.target_token_ticker ?? '',
-                token_amount: amount_fixed,
+                token_amount: token_amount,
                 usd_value: usd_value,
                 wallet_index: wallet.index ?? 1,
                 id: line_id,
                 market_cap,
+                tx: response?.tx
               },
               true,
             );
@@ -206,11 +263,12 @@ export class TransactionService {
                 status: 'success',
                 type: data.transaction as any,
                 ticker: user.target_token_ticker ?? '',
-                token_amount: amount_fixed,
+                token_amount: token_amount,
                 usd_value: usd_value,
                 wallet_index: wallet.index ?? 1,
                 id: line_id,
                 market_cap,
+                tx: response?.tx
               },
               true,
             );
@@ -230,6 +288,8 @@ export class TransactionService {
         data.interval === 'MINMAX'
           ? faker.number.int({ min: data.min_time, max: data.max_time })
           : (data.min_time ?? 0);
+
+
 
       for (const wallet of wallets) {
 

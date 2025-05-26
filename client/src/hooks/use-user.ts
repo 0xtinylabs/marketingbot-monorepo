@@ -12,7 +12,7 @@ import useSocketStore from "@/store/socket-store";
 const useUser = () => {
   const { disconnect } = useDisconnect();
   const { setToken } = useTokenStore();
-  const { loginUser } = useUserStore();
+  const { loginUser, logoutUser } = useUserStore();
   const { setWallets, deselectAllWallets, wallets } = useWalletStore();
   const { setSocket } = useSocketStore();
   const { walletProvider } = useAppKitProvider("eip155")
@@ -35,6 +35,15 @@ const useUser = () => {
       toast.error("Could not connect socket");
     }
   };
+
+  const logout = () => {
+    setSocket(null);
+    setWallets([]);
+    setToken(null);
+    deselectAllWallets();
+    logoutUser();
+    disconnect()
+  }
 
   const setUserToken = async (address: string, token_address: string) => {
     try {
@@ -76,7 +85,7 @@ const useUser = () => {
     }
   };
 
-  return { login, createWallets, setUserToken, connectSocket };
+  return { login, createWallets, setUserToken, connectSocket, logout };
 };
 
 export default useUser;

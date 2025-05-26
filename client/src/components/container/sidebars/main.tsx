@@ -45,37 +45,39 @@ const MainSidebar = () => {
       <div className="flex">
         <Card className="flex-1">
           <CardTitle>ETH Value</CardTitle>
-          <CardText>{getWalletsBalanceTotalData().eth?.toFixed(3)}</CardText>
+          <CardText>${getWalletsBalanceTotalData().eth_usd?.toFixed(3)}</CardText>
         </Card>
         <Card className="flex-1">
           <CardTitle>{token?.ticker ?? "TOKEN"} Value</CardTitle>
           <CardText>${getWalletsBalanceTotalData().token_usd?.toFixed(2)}</CardText>
         </Card>
       </div>
-      <Card className="flex-1 flex flex-col">
-        <div>
-          <Button.Root
-            className="w-full bg-white-0 flex justify-between"
-            mode="stroke"
-            variant="neutral"
-          >
-            Wallet Settings
-            <div className="text-xs flex gap-x-2 items-center">
-              {selectedWallets?.length > 0 && <span className="text-primary-base">{selectedWallets?.length}W</span>}
-              {!showWallets && <span onClick={selecteAllWallets} className="text-text-sub-600">S all</span>}
-              {!showWallets && <span onClick={deselectAllWallets} className="text-text-sub-600">D all</span>}
-              <WalletSettingsMenu />
-              <Button.Icon
-                onClick={() => {
-                  setShowWallets(!showWallets);
-                }}
-                as={!showWallets ? RiEyeOffFill : RiEyeFill}
-                size="xxsmall"
-              />
-            </div>
-          </Button.Root>
-        </div>
-        {showWallets && <WalletsContainer />}
+      <Card className="flex-1 flex flex-col overflow-hidden">
+        <Card className="flex-1  flex flex-col">
+          <div>
+            <Button.Root
+              className="w-full bg-white-0 flex justify-between"
+              mode="ghost"
+              variant="neutral"
+            >
+              Wallet Settings
+              <div className="text-xs flex gap-x-2 items-center">
+                {selectedWallets?.length > 0 && <span className="text-primary-base">{selectedWallets?.length}W</span>}
+                {!showWallets && <span onClick={selecteAllWallets} className="text-text-sub-600">S all</span>}
+                {!showWallets && <span onClick={deselectAllWallets} className="text-text-sub-600">D all</span>}
+                <WalletSettingsMenu />
+                <Button.Icon
+                  onClick={() => {
+                    setShowWallets(!showWallets);
+                  }}
+                  as={!showWallets ? RiEyeOffFill : RiEyeFill}
+                  size="xxsmall"
+                />
+              </div>
+            </Button.Root>
+          </div>
+          {showWallets && <WalletsContainer />}
+        </Card>
         <h3 className="text-text-strong-950 text-label-sm !mt-4">
           Amount Settings
         </h3>
@@ -163,7 +165,6 @@ const MainSidebar = () => {
           )}
         </div>
 
-        <div className="flex-1"></div>
       </Card>
       <Card className="border-t-0 rounded-b-md">
         <SegmentedControl.Root defaultValue="SINGLE">

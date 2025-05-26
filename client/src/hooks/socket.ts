@@ -55,8 +55,11 @@ const useSocket = () => {
         is_loop: data.isLoop,
 
       }, data.id);
+      setTransactionSessionOption("transaction", undefined)
       setTransactionSessionOption("status", "IDLE")
     });
+
+
     socket?.on("session-line", (data: TransactionLineType) => {
       if (data.status === "loading") {
 

@@ -24,8 +24,7 @@ const sendLogToWindow = (log) => {
 
 runUpdateCheck(() => {
   if (window) {
-    console.log("x")
-    window.webContents.send("update");
+    window.webContents.send("update", {});
   }
 })
 

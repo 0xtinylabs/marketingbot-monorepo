@@ -22,8 +22,15 @@ function getLatestCommit(cb) {
     res.on('data', chunk => data += chunk);
     console.log(data)
     res.on('end', () => {
-      const json = JSON.parse(data);
-      cb(json.sha);
+      try {
+
+        const json = JSON.parse(data);
+        cb(json.sha);
+      }
+      catch (err) {
+        console.error('Error parsing JSON:', err);
+        cb(null);
+      }
     });
   });
 }
@@ -49,7 +56,6 @@ const runUpdateCheck = (callback) => {
     checkForUpdate(callback)
     console.log('Checking for updates...');
   }, intervalMs);
-  checkForUpdate(); // Run immediately
 }
 
 module.exports = {

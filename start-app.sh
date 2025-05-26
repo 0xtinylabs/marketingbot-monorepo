@@ -1,5 +1,8 @@
 echo STARTING
 
+
+git stash
+git pull -f
 npm install -f
 migration=$(openssl rand -hex 16)
 echo "${migration}"

@@ -5,7 +5,7 @@ const Card = (props: React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
       className={clsx(
-        "bg-transparent border-[1px] border-bg-soft-200 p-[10px] space-y-2",
+        "bg-soft-400 border-[1px] border-bg-soft-200 p-[10px] space-y-2",
         props.className
       )}
     >

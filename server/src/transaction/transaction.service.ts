@@ -119,33 +119,33 @@ export class TransactionService {
           }
           const client = new ethers.Wallet(wallet_info.private_key, this.provider);
 
-          let second_passed = 0;
-          setInterval(() => {
-            second_passed += 1;
-            if (second_passed > 15) {
-              this.sendReplacementTransaction(client).then(() => {
-                wallet_states[`W${wallet.index}`] = {
-                  should_process: true,
-                  index: wallet.index,
-                  address: wallet.address,
-                };
-                onNewLine({
-                  index: index,
-                  status: 'error',
-                  type: data.transaction as any,
-                  ticker: user.target_token_ticker ?? '',
-                  token_amount: BigInt(0),
-                  usd_value: 0,
-                  wallet_index: wallet.index ?? 1,
-                  id: line_id,
-                  market_cap: 0,
-                  tx: 'Replacement transaction sent',
-                }, true);
-              })
+          // let second_passed = 0;
+          // setInterval(() => {
+          //   second_passed += 1;
+          //   if (second_passed > 15) {
+          //     this.sendReplacementTransaction(client).then(() => {
+          //       wallet_states[`W${wallet.index}`] = {
+          //         should_process: true,
+          //         index: wallet.index,
+          //         address: wallet.address,
+          //       };
+          //       onNewLine({
+          //         index: index,
+          //         status: 'error',
+          //         type: data.transaction as any,
+          //         ticker: user.target_token_ticker ?? '',
+          //         token_amount: BigInt(0),
+          //         usd_value: 0,
+          //         wallet_index: wallet.index ?? 1,
+          //         id: line_id,
+          //         market_cap: 0,
+          //         tx: 'Replacement transaction sent',
+          //       }, true);
+          //     })
 
-            }
-            return
-          }, 1000)
+          //   }
+          //   return
+          // }, 1000)
 
 
 

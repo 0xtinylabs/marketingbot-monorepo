@@ -38,8 +38,6 @@ const Header = () => {
 
   const { status } = useStatusStore()
 
-
-
   const { logout } = useUser()
 
   return (
@@ -79,9 +77,7 @@ const Header = () => {
           {reloading ? "Reloading" : ""} <Button.Icon className={clsx(reloading ? "animate-spin" : "")} as={RiRefreshLine} />
         </Button.Root>}
         <Button.Root onClick={() => {
-          if (status === "down") {
-            window.electron.send("restart-server")
-          }
+          window.electron.send("restart-server")
         }} mode="lighter" className="relative" variant="neutral">
           <Button.Icon as={RiServerLine} />
           <div className={clsx("absolute w-[6px] aspect-square rounded-full", "top-[4px] left-[4px]", status === "up" ? "bg-green-500" : "bg-red-500")}></div>

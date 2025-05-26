@@ -52,7 +52,7 @@ const MainSidebar = () => {
           <CardText>${getWalletsBalanceTotalData().token_usd?.toFixed(2)}</CardText>
         </Card>
       </div>
-      <Card className="flex-1 flex flex-col overflow-hidden">
+      <Card className="flex-1 flex flex-col overflow-hidden border-t-0">
         <Card className="flex-1  flex flex-col">
           <div>
             <Button.Root
@@ -199,7 +199,7 @@ const MainSidebar = () => {
               }}
               variant="primary"
               mode={
-                transactionSession?.transaction === "BUY" ? "filled" : "ghost"
+                "filled"
               }
               className={clsx("flex-1")}
             >
@@ -212,7 +212,7 @@ const MainSidebar = () => {
                 emitSessionStart("SELL")
               }}
               mode={
-                transactionSession?.transaction === "SELL" ? "filled" : "ghost"
+                "filled"
               }
               className="flex-1 "
               variant="error"
@@ -223,7 +223,7 @@ const MainSidebar = () => {
             <Button.Root
               className="flex-1"
               variant={
-                transactionSession?.status === "RUNNING" ? "error" : "neutral"
+                transactionSession?.transaction === "AUTO" ? "primary" : "neutral"
               }
               mode="stroke"
               onClick={emitSessionStop}

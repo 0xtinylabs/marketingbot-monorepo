@@ -170,7 +170,7 @@ class SwapService {
         new Promise((resolve) => {
           setTimeout(resolve, ms);
         });
-      await sleep(500);
+      await sleep(3000);
 
       const nonce = await client.getTransactionCount({
         address: client.account.address,
@@ -187,7 +187,9 @@ class SwapService {
       });
 
       const tx = await client.sendRawTransaction({
+
         serializedTransaction: signedTransaction,
+
       });
 
 

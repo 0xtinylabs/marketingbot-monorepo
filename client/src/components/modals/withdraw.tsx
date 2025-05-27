@@ -13,7 +13,6 @@ import useWalletStore from "../../store/wallet";
 const WithdrawModal = (props: PropsWithChildren) => {
   const { modal, closeAll } = useModalStore();
 
-  console.log(modal);
 
   const { selectedWallets } = useWalletStore();
 

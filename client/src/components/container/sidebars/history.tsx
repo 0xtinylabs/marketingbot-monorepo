@@ -16,7 +16,8 @@ const HistorySidebar = () => {
 
   useEffect(() => {
     alert('b')
-  })
+    console.log(scrollContrainerRef.current)
+  }, [])
 
   const scrollContrainerRef = useRef<HTMLDivElement | null>(null)
 

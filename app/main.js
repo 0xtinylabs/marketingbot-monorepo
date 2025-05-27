@@ -49,7 +49,7 @@ function killProcessSafe(proc, ports) {
 }
 
 const runServerDev = async () => {
-  await killProcessSafe(server_process, "server", [3002, 3004]);
+  await killProcessSafe(server_process, [3002, 3004]);
 
   server_process = spawn("npm", ["run", "start:dev"], { cwd: server_dir, shell: true });
   server_process.stdout.on("data", (d) => sendLogToWindow({
@@ -64,7 +64,7 @@ const runServerDev = async () => {
 }
 
 const runClientDev = async () => {
-  await killProcessSafe(client_process, "client", [3000]);
+  await killProcessSafe(client_process, [3000]);
 
 
 
@@ -82,7 +82,7 @@ const runClientDev = async () => {
 }
 
 const runServer = async () => {
-  await killProcessSafe(server_process, "server");
+  await killProcessSafe(server_process, [3002]);
 
   // (İstersen buraya kill-port ekle: await kill(3001); vs)
 
@@ -116,7 +116,7 @@ const runServer = async () => {
 };
 
 const runClient = async () => {
-  await killProcessSafe(client_process, "client");
+  await killProcessSafe(client_process, [3000]);
 
   // (İstersen buraya kill-port ekle: await kill(3000); vs)
 
@@ -247,7 +247,7 @@ ipcMain.on("open-external", (event, url) => {
 });
 
 ipcMain.on("restart-server", async () => {
-  await killProcessSafe(server_process, "server");
+  await killProcessSafe(server_process, [3002]);
   console.log("Server process killed");
   if (process.env.APP_ENV === "development") {
     await runServerDev();
@@ -262,7 +262,7 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', async () => {
-  await killProcessSafe(server_process, "server");
-  await killProcessSafe(client_process, "client");
+  await killProcessSafe(server_process, [3002]);
+  await killProcessSafe(client_process, [3000]);
   app.quit();
 });

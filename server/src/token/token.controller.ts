@@ -10,6 +10,7 @@ import { WalletRequest } from 'src/decorators/method/wallet_address.decorator';
 export class TokenController {
   constructor(private readonly tokenService: TokenService) { }
 
+
   @WalletRequest()
   @Put('/set')
   async setUserToken(

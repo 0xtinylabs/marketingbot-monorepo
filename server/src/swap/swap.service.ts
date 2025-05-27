@@ -80,7 +80,7 @@ class SwapService {
         from_token = token_address;
         to_token = TOKENS.weth;
       } else if (type === 'BUY') {
-        from_token = TOKENS.weth;
+        from_token = TOKENS.ETH;
         to_token = token_address;
       }
       const wallet = new ethers.Wallet(wallet_info.private_key, this.provider);

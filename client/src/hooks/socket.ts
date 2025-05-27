@@ -6,8 +6,8 @@ import useWalletStore from "@/store/wallet";
 import { TransactionLineType } from "@/types/common";
 import { useEffect } from "react";
 
-const useSocket = () => {
-  const { socket, listenersInited, setListenersInited } = useSocketStore();
+const useSocket = (for_init: boolean = false) => {
+  const { socket } = useSocketStore();
   const { transactionSession, setTransactionSessionOption } = useTransactionSessionStore();
   const { user } = useUserStore();
   const { addWalletRecord, updateWalletRecord } = useHistoryRecordStore();
@@ -36,9 +36,7 @@ const useSocket = () => {
     if (!user?.wallet_address) {
       return;
     }
-    setListenersInited(true)
 
-    console.log("init socket listeners", user?.wallet_address);
     socket?.on(
       "session-start",
       (data: { isLoop: boolean; loopIndex: number, id: string }) => {
@@ -82,14 +80,11 @@ const useSocket = () => {
 
   useEffect(() => {
 
-    if (!user) {
-      setListenersInited(false)
-    }
 
-    if (socket && !listenersInited) {
-      initListeners();
+    if (socket && for_init) {
+      initListeners()
     }
-  }, [socket, user?.wallet_address, listenersInited]);
+  }, [socket, user?.wallet_address, for_init]);
 
   return { emitSessionStart, emitSessionStop, socket };
 };

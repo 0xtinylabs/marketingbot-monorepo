@@ -6,10 +6,12 @@ import TargetTokenModal from "../modals/target-token";
 import WithdrawModal from "../modals/withdraw";
 import TerminalModal from "../modals/terminal";
 import useIpcListener from "@/hooks/ipc-listener";
+import useSocket from "@/hooks/socket";
 
 const Wrapper = ({ children }: PropsWithChildren) => {
 
   useIpcListener()
+  useSocket(true)
 
   return (
     <div className="w-screen h-screen flex flex-col bg-bg-white-0 py-[15px] px-[10px] gap-y-[10px]">

@@ -238,7 +238,7 @@ ipcMain.on("reload", async () => {
 
   res.on("close", async () => {
     const commit = existsSync(lastCommitFile) ? readFileSync(lastCommitFile, "utf-8") : "";
-    existsSync(lastUpdatedFile) && writeFileSync(lastUpdatedFile, commit);
+    writeFileSync(lastUpdatedFile, commit);
 
     await startApp();
   });

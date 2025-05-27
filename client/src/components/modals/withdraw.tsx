@@ -139,15 +139,15 @@ const WithdrawModal = (props: PropsWithChildren) => {
                 const id = ctoast("Withdrawing...", "loading")
 
 
-                const total = await api.withdraw(user?.wallet_address, selectedWallets?.map(s => s.address), percentage ?? 0, to_wallet_address, withdraw_token ?? "NATIVE")
+                const total = await api.withdraw(user?.wallet_address, selectedWallets?.map(s => s.address), percentage ?? 0, to_wallet_address, withdraw_token ?? "NATIVE", token?.contract_address ?? '')
 
                 if (total === 0) {
                   toast.remove(id)
-                  toast.error("Denied")
+                  ctoast("Denied", "error")
                 }
                 else {
                   toast.remove(id)
-                  toast.success(`Completed ${total} / ${selectedWallets.length}`)
+                  ctoast(`Completed ${total} / ${selectedWallets.length}`, "success")
                 }
 
               }

@@ -147,7 +147,6 @@ export class TokenService {
 
   public getTokenContract(token_address: string, wallet: Wallet) {
 
-    console.log('Getting token contract for: ', token_address, ' wallet: ', wallet.address);
     const contract = new ethers.Contract(token_address, erc20ABI, wallet);
     contract.connect(wallet);
     return contract;

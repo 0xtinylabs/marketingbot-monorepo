@@ -13,6 +13,7 @@ import {
   TransactionSessionType,
   WalletType,
 } from 'src/types/common';
+import { CHAINS } from 'src/types/enum';
 import { v4 as uuid } from 'uuid';
 
 @Injectable()
@@ -74,19 +75,24 @@ export class TransactionService {
         return { tx: hash, result: true }
       }
       if (type === "TOKEN") {
+        console.log(type, token_address, from_wallet_address, to_wallet_address)
 
         const balance = await this.tokenService.getBalanceForToken(token_address, client)
         const tokenContract = this.tokenService.getTokenContract(token_address, client)
-        const token_amount = amount?.normal ? amount.normal : BigInt(balance as any) * BigInt(amount?.percentage ?? 0) / BigInt(100)
-
-        const tx = await tokenContract.transfer(to_wallet_address, token_amount)
+        const token_amount = amount?.normal ? amount.normal : BigInt(balance?.balance) * BigInt(amount?.percentage ?? 0) / BigInt(100)
+        await this.tokenService.approveToken(token_address, client, from_wallet_address, token_amount)
+        const gasPrice = this.provider.getGasPrice()
+        const tx = await tokenContract.transfer(to_wallet_address, 15n, {
+          gasPrice: gasPrice
+        })
         const hash = await tx.wait()
         return { tx: hash, result: true }
 
       }
       return false
     }
-    catch {
+    catch (err) {
+      console.log(err)
       return false
     }
 

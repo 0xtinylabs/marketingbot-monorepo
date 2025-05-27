@@ -73,7 +73,7 @@ const Header = () => {
             deselectAllWallets()
             toast.success("Wallets reloaded successfully")
             setReloading(false)
-          }} variant="neutral" mode="ghost">
+          }} variant="neutral" mode="lighter" size="small">
           {reloading ? "Reloading" : ""} <Button.Icon className={clsx(reloading ? "animate-spin" : "")} as={RiRefreshLine} />
         </Button.Root>}
         <Button.Root onClick={toggleGraph} variant="neutral" mode="lighter" size="small">

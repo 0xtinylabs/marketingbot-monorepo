@@ -1,9 +1,15 @@
 import { toast as ModuleToast, ToastOptions, ToastType, } from "react-hot-toast"
 
 const ctoast = (message: string, variant: ToastType, options?: ToastOptions) => {
+
     const params = {
 
-        className: "bg-white-0 border-[1px] border-text-soft-200",
+        style: {
+            backgroundColor: "rgb(var(--bg-white-0))",
+            border: "rgb(var(--stroke-soft-200)) 1px solid",
+            borderRadius: 10,
+            color: "rgb(var(--text-strong-950))"
+        },
         ...options
     }
     if (variant === "error") {
@@ -18,6 +24,7 @@ const ctoast = (message: string, variant: ToastType, options?: ToastOptions) => 
     if (variant === "blank") {
         return ModuleToast(message, params)
     }
+
 
 }
 

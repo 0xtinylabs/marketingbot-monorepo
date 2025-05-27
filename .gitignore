@@ -3,3 +3,6 @@ out
 token.txt
 server/main
 server/prisma/data.db
+
+app/.last_updated_hash
+app/.last_commit_hash

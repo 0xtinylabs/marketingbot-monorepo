@@ -23,6 +23,14 @@ export class TokenController {
     return { token: res };
   }
 
+
+
+  // @WalletRequest()
+  // @Post("/wrap-optimize")
+  // async updateWrappedEther(@Request() req: WalletAddressedRequest) {
+  //   const res = await this.tokenService.
+  // }
+
   // @WalletRequest()
   // @Get("/token-prediction")
   // async getTokenPrediction(

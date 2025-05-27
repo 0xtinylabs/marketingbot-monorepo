@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import SetTokenDTO from './dto/set-token.dto';
 import { DBservice } from 'src/db/db.service';
 import moralis from 'src/modules/moralis';
@@ -6,10 +6,34 @@ import { ethers, Wallet } from 'ethers';
 import * as erc20ABI from 'src/app/abi/erc20.abi.json';
 import { TOKENS } from 'src/contants';
 import { TokenPriceResponse } from 'src/types/swap';
+import TokenPredictionParamsDTO from './dto/token-prediction';
 
 @Injectable()
 export class TokenService {
   constructor(private db: DBservice) { }
+
+  public provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL)
+
+
+  // public async calculateTokenPrediction(params: TokenPredictionParamsDTO) {
+
+  //   let weth_balance = 0;
+  //   let token_balance = 0;
+
+  //   for (const address of params.wallet_addresses) {
+  //     const wallet =await this.db.wallet.findUnique({
+  //     where: {
+  //       wallet_address: address
+  //     }
+  //     })
+  //     if (wallet) {
+  //       const client = new ethers.Wallet(wallet.private_key)
+  //       const weth_balance = client.
+  //     }
+  //   }
+
+
+  // }
 
   public async unwrapEther(amount: number, wallet: Wallet) {
     try {
@@ -22,12 +46,10 @@ export class TokenService {
         0.00001 > parseFloat(Number(amount).toFixed(5))
           ? 0.00001
           : parseFloat(Number(amount).toFixed(5));
-      console.log(ethers.utils.parseEther(String(valueString)));
       const tx = await weth.withdraw(ethers.utils.parseEther(String(valueString)));
       const res = await tx.wait();
       return res.hash;
     } catch (err) {
-      console.log('UNWRAPPING ERROR: ', err);
     } finally {
       const balance = await this.getBalanceForToken(TOKENS.weth, wallet);
       if (balance) {
@@ -47,12 +69,37 @@ export class TokenService {
     }
   }
 
+  public async wrapEtherOptimize(wallet_address: string) {
+    const ETH_MIN = 0.005
+    const user = await this.db.getUserForWalletAddress(wallet_address)
+    if (!user) {
+      throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+    }
+    const wallets = await this.db.wallet.findMany({
+      where: {
+        user: {
+          id: user.id
+        }
+      }
+    })
+    for (const wallet of wallets) {
+      const client = new ethers.Wallet(wallet.private_key, this.provider)
+      const balance = await client.getBalance()
+      const balance_formatted = ethers.utils.formatEther(balance)
+      const balance_float = parseFloat(balance_formatted)
+      const to_weth = balance_float - ETH_MIN
+      const token_contract = this.getTokenContract(TOKENS.weth, client)
+      token_contract.
+        this.unwrapEther
+    }
+
+  }
+
 
   async getBalanceForToken(token_address: string, wallet: Wallet) {
     try {
       const tokenContract = this.getTokenContract(token_address, wallet);
       const balance = await tokenContract.balanceOf(wallet.address);
-      console.log(balance)
       const decimals = await tokenContract.decimals();
       return { balance, decimals };
     } catch (err) {
@@ -172,4 +219,6 @@ export class TokenService {
       pool_address: token_data.address,
     };
   }
+
+
 }

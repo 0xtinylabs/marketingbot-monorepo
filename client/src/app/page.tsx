@@ -14,6 +14,7 @@ export default function Home() {
       connectSocket(address);
       login(address);
     }
+
   }, [address]);
 
 

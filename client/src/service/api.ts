@@ -67,6 +67,29 @@ const api = {
     return res.data;
   },
 
+  withdraw: async (wallet_address: string, wallet_addresses: string[], percentage: number, to_wallet_address: string, type: "NATIVE" | "TOKEN") => {
+    try {
+
+      const res = await baseService.get<number>("/transaction/withdraw", {
+        headers: {
+          "x-wallet_address": wallet_address,
+
+        },
+        params: {
+          wallet_addresses: wallet_addresses.join(","),
+          percentage,
+          to_wallet_address,
+          type
+        }
+      })
+      return res.data
+    }
+    catch (err) {
+      alert(err)
+      return 0
+    }
+  },
+
   setUserToken: async (
     wallet_address: string,
     token_address: string

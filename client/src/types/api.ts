@@ -11,3 +11,4 @@ export type WalletDownloadResponse = {
   wallet_address: string;
   wallet_private_key: string;
 };
+

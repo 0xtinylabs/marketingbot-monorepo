@@ -31,7 +31,6 @@ export class WalletService {
 
       const weth_worth = await moralisHttp.getWalletTokenUsdWorth(wallet.wallet_address, TOKENS.weth)
 
-      console.log(wallet_worth);
       const wallet_data: WalletType = {
         address: wallet.wallet_address,
         total_eth: parseFloat((wallet_worth.eth ?? 0)),
@@ -70,7 +69,6 @@ export class WalletService {
     }
 
     const wallets: WalletType[] = [];
-    console.log(wallets)
     for (let i = 0; i < body.count; i++) {
       const wallet = this.web3Service.createWallet();
       const user_wallet = await this.db.wallet.create({

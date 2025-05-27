@@ -17,9 +17,10 @@ import { SessionService } from './session/session.service';
 import { WalletService } from './wallet/wallet.service';
 import { ethers } from 'ethers';
 import { TOKENS } from './contants';
+import TransactionModule from './transaction/transaction.module';
 
 @Module({
-  imports: [WalletModule, AuthModule, AppModule, TokenModule, SessionModule],
+  imports: [WalletModule, AuthModule, AppModule, TokenModule, SessionModule, TransactionModule],
   controllers: [AppController, AuthController],
   providers: [
     AppService,

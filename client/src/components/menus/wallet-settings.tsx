@@ -38,8 +38,7 @@ const WalletSettingsMenu = () => {
           Target a token
         </Dropdown.Item>
         <Dropdown.Item
-          onSelect={(e) => {
-            e.preventDefault();
+          onSelect={() => {
             setModal("withdraw");
           }}
         >

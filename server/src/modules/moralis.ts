@@ -54,7 +54,6 @@ class MoralisService {
     });
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
-    console.log("TOKEN", data)
     return data?.result?.[0]?.usd_value;
   }
 

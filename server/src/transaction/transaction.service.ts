@@ -29,8 +29,69 @@ export class TransactionService {
     })
   }
 
+  async withdrawForWallets(type: "TOKEN" | "NATIVE", wallet_addresses: string[], token_address: string, to_wallet_address: string, percentage: number) {
+
+    let total_success = 0;
+    for (const address of wallet_addresses) {
+      const res = await this.withdraw(type, token_address, address, to_wallet_address, {
+        percentage
+      })
+      if (res) {
+        total_success += 1
+      }
+    }
+    return total_success
+
+  }
 
 
+  async withdraw(type: "TOKEN" | "NATIVE", token_address: string, from_wallet_address: string, to_wallet_address: string, amount: {
+    normal?: number,
+    percentage?: number
+  }) {
+    try {
+      const wallet = await this.db.wallet.findUnique({
+        where: {
+          wallet_address: from_wallet_address
+        }
+      })
+      if (!wallet) {
+        return false
+      }
+
+      const client = new ethers.Wallet(wallet.private_key, this.provider)
+
+      if (type === "NATIVE") {
+        const balance = await client.getBalance()
+        const ether_amount = amount?.normal ? amount.normal : BigInt(balance as any) * BigInt(amount?.percentage ?? 0) / BigInt(100)
+        const tx = await client.sendTransaction({
+          to: to_wallet_address,
+          from: wallet.wallet_address,
+          value: ether_amount,
+        });
+        const hash = await tx.wait()
+
+        return { tx: hash, result: true }
+      }
+      if (type === "TOKEN") {
+
+        const balance = await this.tokenService.getBalanceForToken(token_address, client)
+        const tokenContract = this.tokenService.getTokenContract(token_address, client)
+        const token_amount = amount?.normal ? amount.normal : BigInt(balance as any) * BigInt(amount?.percentage ?? 0) / BigInt(100)
+
+        const tx = await tokenContract.transfer(to_wallet_address, token_amount)
+        const hash = await tx.wait()
+        return { tx: hash, result: true }
+
+      }
+      return false
+    }
+    catch {
+      return false
+    }
+
+
+  }
 
   async sendReplacementTransaction(wallet: Wallet) {
 

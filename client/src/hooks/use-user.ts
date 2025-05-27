@@ -40,6 +40,7 @@ const useUser = () => {
     setSocket(null);
     setWallets([]);
     setToken(null);
+
     deselectAllWallets();
     logoutUser();
     disconnect()

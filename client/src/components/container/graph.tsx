@@ -16,7 +16,7 @@ const Graph = () => {
   }
 
   return (
-    <div className="flex-1 bg-bg-weak-50 flex">
+    <div className="flex-1 bg-bg-weak-50 flex rounded-[10px] overflow-hidden">
       {token?.contract_address && (
         <iframe
           src={`https://www.geckoterminal.com/base/pools/${token?.pool_address ?? token?.contract_address

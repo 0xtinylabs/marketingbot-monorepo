@@ -167,7 +167,7 @@ const MainSidebar = () => {
         </div>
 
       </Card>
-      <Card className="border-t-0 rounded-b-[10px]">
+      <Card className="border-t-0 rounded-b-[10px] gap-y-[10px]">
         <SegmentedControl.Root defaultValue="SINGLE">
           <SegmentedControl.List>
             <SegmentedControl.Trigger
@@ -188,7 +188,7 @@ const MainSidebar = () => {
             </SegmentedControl.Trigger>
           </SegmentedControl.List>
         </SegmentedControl.Root>
-        <div className="flex gap-x-3 py-2">
+        <div className="flex gap-x-[10px]">
           {transactionSession?.status !== "RUNNING" && <>
             <Button.Root
               onClick={() => {

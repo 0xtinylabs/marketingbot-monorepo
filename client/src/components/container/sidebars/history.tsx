@@ -15,7 +15,6 @@ const HistorySidebar = () => {
 
 
   useEffect(() => {
-    alert('b')
     console.log(scrollContrainerRef.current)
   }, [])
 

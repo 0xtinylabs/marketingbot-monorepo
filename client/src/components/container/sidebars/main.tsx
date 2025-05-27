@@ -44,8 +44,8 @@ const MainSidebar = () => {
       </Card>
       <div className="flex">
         <Card className="flex-1 border-r-0">
-          <CardTitle>WETH Value</CardTitle>
-          <CardText>${getWalletsBalanceTotalData().weth_usd?.toFixed(3)}</CardText>
+          <CardTitle>ETH Value</CardTitle>
+          <CardText>${getWalletsBalanceTotalData().eth_usd?.toFixed(3)}</CardText>
         </Card>
         <Card className="flex-1">
           <CardTitle>{token?.ticker ?? "TOKEN"} Value</CardTitle>
@@ -98,7 +98,7 @@ const MainSidebar = () => {
           </Input.Wrapper>
         </Input.Root>
         <p className="text-text-sub-600 text-[12px]">
-          <span className="text-green-600">Buy:</span> ${(getSelectedWalletsBalanceTotalData().weth_usd * (transactionSession?.percentage ?? 1) / 100).toFixed(2)} TOKEN /{" "}
+          <span className="text-green-600">Buy:</span> ${(getSelectedWalletsBalanceTotalData().eth_usd * (transactionSession?.percentage ?? 1) / 100).toFixed(2)} TOKEN /{" "}
           <span className="text-red-600">Sell:</span> ${(getSelectedWalletsBalanceTotalData().token_usd * (transactionSession?.percentage ?? 1) / 100).toFixed(2)} WETH
         </p>
         <h3 className="text-text-strong-950 text-label-sm !mt-4">

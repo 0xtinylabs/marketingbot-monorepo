@@ -155,6 +155,26 @@ class SwapService {
       }
 
 
+      const nonce = await client.getTransactionCount({
+        address: client.account.address,
+      });
+
+      if (type === "BUY") {
+        const txHash = await client.sendTransaction({
+          account: client.account,
+          chain: client.chain,
+          gas: swap?.gas ? BigInt(swap.gas) : undefined,
+          to: swap?.to as any,
+          data: swap?.data as any,
+          value: BigInt(swap?.value ?? 0), // Ensure value is set for native tokens
+          gasPrice: !!swap?.gasPrice ? BigInt(swap?.gasPrice) : undefined,
+          nonce: nonce,
+        });
+        return { buy_amount: swap?.buyAmount, tx: txHash, cost: swap?.networkFee };
+
+      }
+
+
       const signature = await client.signTypedData(swap?.eip712);
       const signatureLengthInHex = numberToHex(size(signature), {
         signed: false,
@@ -172,9 +192,7 @@ class SwapService {
         });
       await sleep(3000);
 
-      const nonce = await client.getTransactionCount({
-        address: client.account.address,
-      });
+
 
       const signedTransaction = await client.signTransaction({
         account: client.account,

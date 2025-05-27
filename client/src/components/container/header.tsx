@@ -121,7 +121,7 @@ const Header = () => {
           <div className={clsx("absolute w-[6px] aspect-square rounded-full", "top-[4px] left-[4px]", status === "up" ? "bg-green-500" : "bg-red-500")}></div>
 
         </Button.Root>
-        {!available && <Button.Root onClick={() => {
+        {available && <Button.Root onClick={() => {
           window.electron.send("reload")
         }} size="small" mode="lighter" className="relative" variant="primary">
           <Button.Icon as={RiDownloadCloudLine} />

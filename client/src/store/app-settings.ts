@@ -8,7 +8,7 @@ type State = {
 
 const useAppSettingsStore = create<State>((set, get) => ({
     setShowGraph: (showGraph) => set({ showGraph }),
-    showGraph: true,
+    showGraph: false,
     toggleGraph: () => set({ showGraph: !(get().showGraph) })
 }))
 

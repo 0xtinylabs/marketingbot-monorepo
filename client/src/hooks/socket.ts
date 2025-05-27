@@ -7,11 +7,12 @@ import { TransactionLineType } from "@/types/common";
 import { useEffect } from "react";
 
 const useSocket = () => {
-  const { socket } = useSocketStore();
+  const { socket, listenersInited, setListenersInited } = useSocketStore();
   const { transactionSession, setTransactionSessionOption } = useTransactionSessionStore();
   const { user } = useUserStore();
   const { addWalletRecord, updateWalletRecord } = useHistoryRecordStore();
   const { selectedWallets } = useWalletStore();
+
 
 
   const emitSessionStart = (transaction: "BUY" | "SELL") => {
@@ -35,6 +36,8 @@ const useSocket = () => {
     if (!user?.wallet_address) {
       return;
     }
+    setListenersInited(true)
+
     console.log("init socket listeners", user?.wallet_address);
     socket?.on(
       "session-start",
@@ -78,10 +81,15 @@ const useSocket = () => {
   };
 
   useEffect(() => {
-    if (socket) {
+
+    if (!user) {
+      setListenersInited(false)
+    }
+
+    if (socket && !listenersInited) {
       initListeners();
     }
-  }, [socket, user?.wallet_address]);
+  }, [socket, user?.wallet_address, listenersInited]);
 
   return { emitSessionStart, emitSessionStop, socket };
 };

@@ -1,6 +1,6 @@
 "use client";
 import LogoSVG from "@/assets/svg/logo";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Button from "@/components/ui/button";
 import {
   useAppKit,
@@ -20,6 +20,7 @@ import toast from "react-hot-toast";
 import useUser from "@/hooks/use-user";
 import useStatusStore from "@/store/status";
 import useAppSettingsStore from "@/store/app-settings";
+import useUserStore from "@/store/user-store";
 
 const Header = () => {
   const { open } = useAppKit();
@@ -39,6 +40,27 @@ const Header = () => {
 
   const { logout } = useUser()
   const { toggleGraph } = useAppSettingsStore()
+
+  const { user } = useUserStore()
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (user) {
+
+      interval = setInterval(async () => {
+        api.getAllWallets(user.wallet_address).then(res => {
+
+          setWallets(res.wallets)
+        })
+      }, 5000)
+    }
+    return () => {
+      if (interval) {
+
+        clearInterval(interval)
+      }
+    }
+  }, [user])
 
   return (
     <div className="flex justify-between">

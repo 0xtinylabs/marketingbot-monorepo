@@ -50,13 +50,16 @@ const useSocket = () => {
       }
     );
     socket?.on("session-end", (data: { isLoop: boolean, id: string }) => {
-      addWalletRecord(user?.wallet_address, {
-        type: RecordTypeEnum.END,
-        is_loop: data.isLoop,
+      setTimeout(() => {
+        addWalletRecord(user?.wallet_address, {
+          type: RecordTypeEnum.END,
+          is_loop: data.isLoop,
 
-      }, data.id);
-      setTransactionSessionOption("transaction", undefined)
-      setTransactionSessionOption("status", "IDLE")
+        }, data.id);
+
+        setTransactionSessionOption("transaction", undefined)
+        setTransactionSessionOption("status", "IDLE")
+      }, 2000)
     });
 
 

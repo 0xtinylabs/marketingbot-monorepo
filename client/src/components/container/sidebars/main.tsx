@@ -81,7 +81,7 @@ const MainSidebar = () => {
         <h3 className="text-text-strong-950 text-label-sm !mt-4">
           Amount Settings
         </h3>
-        <Input.Root className="bg-transparent">
+        <Input.Root size="small" className="bg-transparent">
           <Input.Wrapper className="bg-transparent">
             <Input.Input
               value={transactionSession?.percentage ?? ""}
@@ -126,7 +126,7 @@ const MainSidebar = () => {
         </SegmentedControl.Root>
         <div className="flex gap-x-2">
           <Input.Root className="bg-transparent">
-            <Input.Wrapper className="bg-transparent">
+            <Input.Wrapper size="small" className="bg-transparent">
               <Input.Icon as={RiTimerLine} />
               <Input.Input
                 onChange={(e) => {
@@ -148,7 +148,7 @@ const MainSidebar = () => {
           </Input.Root>
           {transactionSession?.interval === "MINMAX" && (
             <Input.Root className="bg-transparent">
-              <Input.Wrapper className="bg-transparent">
+              <Input.Wrapper size="small" className="bg-transparent">
                 <Input.Icon as={RiTimerLine} />
                 <Input.Input
                   value={transactionSession?.max_time ?? ""}

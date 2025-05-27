@@ -390,3 +390,21 @@
   transform: scale(0.8996);
   transform-origin: center;
 }
+
+
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* (Optional) Removes the clear button in Edge */
+input[type="number"]::-ms-clear {
+  display: none;
+}

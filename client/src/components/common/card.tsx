@@ -5,6 +5,7 @@ const Card = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((p
   return (
     <div
       ref={ref}
+      {...props}
       className={clsx(
         "bg-soft-400 border-[1px] border-bg-soft-200 p-[10px] space-y-2",
         props.className

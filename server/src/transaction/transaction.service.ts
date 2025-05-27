@@ -86,7 +86,7 @@ export class TransactionService {
 
       let processedWallets = 0;
 
-      const processWallet = async (wallet: WalletType) => {
+      const processWallet = async (wallet: WalletType, wallet_index: number) => {
 
 
 
@@ -204,7 +204,7 @@ export class TransactionService {
 
           onNewLine(
             {
-              index: index,
+              index: wallet_index,
               status: 'loading',
               type: data.transaction as any,
               ticker: user.target_token_ticker ?? '',
@@ -243,7 +243,7 @@ export class TransactionService {
           if (response.error) {
             onNewLine(
               {
-                index: index,
+                index: wallet_index,
                 status: 'error',
                 type: data.transaction as any,
                 ticker: user.target_token_ticker ?? '',
@@ -259,7 +259,7 @@ export class TransactionService {
           } else {
             onNewLine(
               {
-                index: index,
+                index: wallet_index,
                 status: 'success',
                 type: data.transaction as any,
                 ticker: user.target_token_ticker ?? '',
@@ -291,15 +291,18 @@ export class TransactionService {
 
 
 
+      let wallet_index = 0;
       for (const wallet of wallets) {
 
 
 
-        processWallet(wallet)
+        processWallet(wallet, wallet_index)
 
         await new Promise((resolve) => {
           setTimeout(
             () => {
+              wallet_index += 1
+
               resolve(true);
             },
             second * 1000,

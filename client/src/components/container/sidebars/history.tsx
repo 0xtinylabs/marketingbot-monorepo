@@ -13,10 +13,12 @@ const HistorySidebar = () => {
   const { walletRecords, clearAllRecordsForWallet } = useHistoryRecordStore();
   const { user } = useUserStore();
 
+  const records_for_address = walletRecords[user?.wallet_address ?? ""]
 
   useEffect(() => {
-    console.log(scrollContrainerRef.current)
-  }, [])
+    const el = document.getElementById("history")
+    el?.scrollTo({ top: el?.scrollHeight, behavior: "smooth" })
+  }, [records_for_address])
 
   const scrollContrainerRef = useRef<HTMLDivElement | null>(null)
 
@@ -24,15 +26,15 @@ const HistorySidebar = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden ">
-      <Card className="px-0  rounded-t-[10px]">
+      <Card className="px-0  rounded-t-[10px] border-b-0">
         <div className="flex-row flex items-center justify-between px-2">
-          <CardTitle className="text-stroke-strong-950 text-[14px]">History</CardTitle>
+          <CardTitle className="text-text-strong-950 text-[14px]">History</CardTitle>
           <LinkButton.Root size="small" onClick={() => {
             clearAllRecordsForWallet(user?.wallet_address ?? "");
           }}>Clear</LinkButton.Root>
         </div>
       </Card>
-      <Card ref={scrollContrainerRef} className="flex-1 overflow-auto basis-0 self-stretch rounded-b-[10px] px-0">
+      <Card id={"history"} ref={scrollContrainerRef} className="flex-1 overflow-auto basis-0 self-stretch rounded-b-[10px] px-0">
         <div className="min-h-full h-full max-h-full space-y-[10px]">
           {user?.wallet_address &&
             walletRecords[user.wallet_address] &&

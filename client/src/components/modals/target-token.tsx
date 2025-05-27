@@ -22,7 +22,6 @@ const TargetTokenModal = (props: PropsWithChildren) => {
 
   const [token_address, setTokenAddress] = useState("");
 
-  console.log(modal);
 
   return (
     <Modal.Root

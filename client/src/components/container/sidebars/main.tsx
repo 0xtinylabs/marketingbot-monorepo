@@ -38,12 +38,12 @@ const MainSidebar = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <Card className="rounded-t-md border-b-0">
+      <Card className="rounded-t-[10px] border-b-0">
         <CardTitle>Total Value</CardTitle>
         <CardText>${getWalletsBalanceTotalData().usd?.toFixed(2)}</CardText>
       </Card>
       <div className="flex">
-        <Card className="flex-1">
+        <Card className="flex-1 border-r-0">
           <CardTitle>WETH Value</CardTitle>
           <CardText>${getWalletsBalanceTotalData().weth_usd?.toFixed(3)}</CardText>
         </Card>
@@ -167,7 +167,7 @@ const MainSidebar = () => {
         </div>
 
       </Card>
-      <Card className="border-t-0 rounded-b-md">
+      <Card className="border-t-0 rounded-b-[10px]">
         <SegmentedControl.Root defaultValue="SINGLE">
           <SegmentedControl.List>
             <SegmentedControl.Trigger

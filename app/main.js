@@ -242,8 +242,8 @@ ipcMain.on("reload", async () => {
   });
 });
 
-ipcMain.on("open-external", (event, url) => {
-  ElectronShell.openExternal(url);
+ipcMain.on("open-external", (event, data) => {
+  ElectronShell.openExternal(data?.url);
 });
 
 ipcMain.on("restart-server", async () => {

@@ -3,9 +3,17 @@
 import React from "react";
 import useTokenStore from "../../store/token-store";
 import { RiAlarmWarningLine } from "@remixicon/react";
+import useAppSettingsStore from "@/store/app-settings";
 
 const Graph = () => {
   const { token } = useTokenStore();
+
+  const { showGraph } = useAppSettingsStore()
+
+
+  if (!showGraph) {
+    return
+  }
 
   return (
     <div className="flex-1 bg-bg-weak-50 flex">

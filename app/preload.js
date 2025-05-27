@@ -11,6 +11,6 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.on(channel, (event, ...args) => func(...args));
     },
     openExternal: (url) => {
-        ipcRenderer.invoke('open-external', url);
+        ipcRenderer.send("open-external", { url })
     },
 });

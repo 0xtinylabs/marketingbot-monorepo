@@ -27,7 +27,7 @@ const TransactionLine = (props: PropsType) => {
       }
     }} className="flex justify-between px-2 text-label-sm">
       <div className="flex gap-x-1  items-center">
-        <span className="text-text-soft-400 w-[27px] text-center">{props.index}</span>
+        <span className="text-text-soft-400 w-[27px] text-center">{props.index + 1}</span>
         <span>
           {props.type === "BUY" ? (
             <Badge.Root variant="light" color="green">

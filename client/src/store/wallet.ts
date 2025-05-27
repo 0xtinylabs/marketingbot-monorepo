@@ -29,7 +29,6 @@ const useWalletStore = create<State>((set, get) => ({
       weth_usd: 0
     }
     get().wallets.forEach((wallet) => {
-      console.log(wallet)
       result.eth += wallet.total_eth ?? 0;
       result.usd += wallet.total_usd ?? 0;
       result.token_usd += wallet.token_usd ?? 0;

@@ -154,12 +154,7 @@ export class TransactionService {
           let decimals = 18;
 
           if (data.transaction === "BUY") {
-            const res = await this.tokenService.getBalanceForToken(
-              TOKENS.weth,
-              client,
-            );
-            decimals = res?.decimals ?? 18;
-            balance = res?.balance ?? 0;
+            balance = await client.getBalance()
           }
 
 

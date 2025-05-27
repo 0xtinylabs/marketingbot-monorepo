@@ -78,7 +78,7 @@ class SwapService {
       let to_token;
       if (type === 'SELL') {
         from_token = token_address;
-        to_token = TOKENS.weth;
+        to_token = TOKENS.ETH;
       } else if (type === 'BUY') {
         from_token = TOKENS.ETH;
         to_token = token_address;

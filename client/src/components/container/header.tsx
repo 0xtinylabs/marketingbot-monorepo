@@ -1,6 +1,6 @@
 "use client";
 import LogoSVG from "@/assets/svg/logo";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as Button from "@/components/ui/button";
 import {
   useAppKit,
@@ -12,7 +12,7 @@ import useModalStore from "@/store/modal-store";
 import useUpdate from "@/store/update";
 import * as Badge from "@/components/ui/badge";
 import useTerminalRecordStore from "@/store/terminal-record";
-import { RiLineChartFill, RiRefreshLine, RiServerLine } from "@remixicon/react";
+import { RiLineChartFill, RiRefreshLine, RiServerLine, RiSkullFill } from "@remixicon/react";
 import api from "@/service/api";
 import useWalletStore from "@/store/wallet";
 import clsx from "clsx";
@@ -21,6 +21,7 @@ import useUser from "@/hooks/use-user";
 import useStatusStore from "@/store/status";
 import useAppSettingsStore from "@/store/app-settings";
 import useUserStore from "@/store/user-store";
+import useSocket from "@/hooks/socket";
 
 const Header = () => {
   const { open } = useAppKit();
@@ -43,23 +44,34 @@ const Header = () => {
 
   const { user } = useUserStore()
 
+  const interval = useRef<NodeJS.Timeout>(null)
+
+  const { emitSessionStop } = useSocket()
+
   useEffect(() => {
-    let interval: NodeJS.Timeout;
     if (user) {
 
-      interval = setInterval(async () => {
+      interval.current = setInterval(async () => {
         api.getAllWallets(user.wallet_address).then(res => {
 
           setWallets(res.wallets)
         })
       }, 5000)
     }
-    return () => {
-      if (interval) {
+    else {
+      if (interval.current) {
+        clearInterval(interval.current)
+      }
+      setWallets([])
 
-        clearInterval(interval)
+    }
+    return () => {
+      if (interval.current) {
+
+        clearInterval(interval.current)
       }
     }
+
   }, [user])
 
   return (
@@ -76,6 +88,14 @@ const Header = () => {
             Update Available
           </Badge.Root>
         </LinkButton.Root>}
+        <LinkButton.Root onClick={() => {
+          setModal("terminal")
+        }}>Logs
+          {getErrorLogsCount() > 0 && <Badge.Root color={'red'}>{getErrorLogsCount()}</Badge.Root>}
+        </LinkButton.Root>
+        {address && <Button.Root onClick={
+          emitSessionStop
+        } variant="error" color="red" mode="lighter" size="small"><Button.Icon as={RiSkullFill} /></Button.Root>}
         {address && <Button.Root
 
 
@@ -98,6 +118,7 @@ const Header = () => {
           }} variant="neutral" mode="lighter" size="small">
           {reloading ? "Reloading" : ""} <Button.Icon className={clsx(reloading ? "animate-spin" : "")} as={RiRefreshLine} />
         </Button.Root>}
+
         <Button.Root onClick={toggleGraph} variant="neutral" mode="lighter" size="small">
           <Button.Icon as={RiLineChartFill} />
         </Button.Root>
@@ -108,11 +129,7 @@ const Header = () => {
           <div className={clsx("absolute w-[6px] aspect-square rounded-full", "top-[4px] left-[4px]", status === "up" ? "bg-green-500" : "bg-red-500")}></div>
 
         </Button.Root>
-        <LinkButton.Root onClick={() => {
-          setModal("terminal")
-        }}>Logs
-          {getErrorLogsCount() > 0 && <Badge.Root color={'red'}>{getErrorLogsCount()}</Badge.Root>}
-        </LinkButton.Root>
+
         <Button.Root
           variant={address ? "neutral" : "primary"}
           mode={address ? "stroke" : "filled"}

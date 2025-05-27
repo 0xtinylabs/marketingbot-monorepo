@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell: ElectronShell } = require("electron");
+const { app, BrowserWindow, ipcMain, shell: ElectronShell, screen } = require("electron");
 const { join } = require("path");
 const { spawn } = require("child_process");
 const { v4 } = require("uuid");
@@ -157,8 +157,14 @@ const runClient = async () => {
 };
 
 const createWindow = () => {
+  const { width, height, x, y } = screen.getPrimaryDisplay().workArea;
+
   const win = new BrowserWindow({
-    fullscreen: true,
+    fullscreen: false,
+    width: Math.floor(width / 2),
+    height: height,
+    x: x + Math.floor(width / 2),
+    y: y,
     resizable: true,
     title: "Marketbot",
     minWidth: 800,

@@ -12,7 +12,7 @@ import useModalStore from "@/store/modal-store";
 import useUpdate from "@/store/update";
 import * as Badge from "@/components/ui/badge";
 import useTerminalRecordStore from "@/store/terminal-record";
-import { RiLineChartFill, RiRefreshLine, RiServerLine, RiSkullFill } from "@remixicon/react";
+import { RiDownloadCloudLine, RiLineChartFill, RiRefreshLine, RiServerLine, RiSkullFill } from "@remixicon/react";
 import api from "@/service/api";
 import useWalletStore from "@/store/wallet";
 import clsx from "clsx";
@@ -77,17 +77,9 @@ const Header = () => {
   return (
     <div className="flex justify-between">
       <LogoSVG />
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
 
-        {available && <LinkButton.Root onClick={() => {
-          window.electron.send("reload")
-        }}>
-          <Badge.Root color="gray" className="!p-3">
 
-            <Badge.Dot size="small"></Badge.Dot>
-            Update Available
-          </Badge.Root>
-        </LinkButton.Root>}
         <LinkButton.Root onClick={() => {
           setModal("terminal")
         }}>Logs
@@ -129,6 +121,12 @@ const Header = () => {
           <div className={clsx("absolute w-[6px] aspect-square rounded-full", "top-[4px] left-[4px]", status === "up" ? "bg-green-500" : "bg-red-500")}></div>
 
         </Button.Root>
+        {!available && <Button.Root onClick={() => {
+          window.electron.send("reload")
+        }} size="small" mode="lighter" className="relative" variant="primary">
+          <Button.Icon as={RiDownloadCloudLine} />
+
+        </Button.Root>}
 
         <Button.Root
           variant={address ? "neutral" : "primary"}

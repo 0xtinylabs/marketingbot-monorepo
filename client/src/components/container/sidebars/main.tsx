@@ -32,7 +32,7 @@ const MainSidebar = () => {
 
   const { token } = useTokenStore()
 
-  const { getWalletsBalanceTotalData, selectedWallets, deselectAllWallets, selecteAllWallets } = useWalletStore()
+  const { getWalletsBalanceTotalData, getSelectedWalletsBalanceTotalData, selectedWallets, deselectAllWallets, selecteAllWallets } = useWalletStore()
 
   console.log(transactionSession)
 
@@ -98,8 +98,8 @@ const MainSidebar = () => {
           </Input.Wrapper>
         </Input.Root>
         <p className="text-text-sub-600 text-[12px]">
-          <span className="text-green-600">Buy:</span> $0 TOKEN /{" "}
-          <span className="text-red-600">Sell:</span> $0 WETH
+          <span className="text-green-600">Buy:</span> ${(getSelectedWalletsBalanceTotalData().token_usd * (transactionSession?.percentage ?? 1) / 100).toFixed(2)} TOKEN /{" "}
+          <span className="text-red-600">Sell:</span> ${(getSelectedWalletsBalanceTotalData().weth_usd * (transactionSession?.percentage ?? 1) / 100).toFixed(2)} WETH
         </p>
         <h3 className="text-text-strong-950 text-label-sm !mt-4">
           Swap Intervals

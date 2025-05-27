@@ -14,11 +14,11 @@ const WalletSettingsMenu = () => {
   const { downloadWallets } = useDownload();
 
   return (
-    <Dropdown.Root>
-      <Dropdown.Trigger asChild>
-        <div className="text-text-strong-950">settings</div>
+    <Dropdown.Root >
+      <Dropdown.Trigger asChild className="cursor-pointer">
+        <div className="text-text-sub-600 text-label-xs hover:underline ">Settings</div>
       </Dropdown.Trigger>
-      <Dropdown.Content>
+      <Dropdown.Content side="bottom" align="end" >
         <Dropdown.Item
           onSelect={() => {
             setModal("add-wallet");

@@ -13,6 +13,7 @@ type RecordType = {
   id?: string;
   is_loop?: boolean;
   loop_index?: number;
+  date?: Date
 };
 
 type WalletRecordType = Record<string, RecordType[]>;

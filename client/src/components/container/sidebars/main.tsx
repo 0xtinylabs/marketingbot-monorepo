@@ -52,33 +52,30 @@ const MainSidebar = () => {
           <CardText>${getWalletsBalanceTotalData().token_usd?.toFixed(2)}</CardText>
         </Card>
       </div>
-      <Card className="flex-1 flex flex-col overflow-hidden border-t-0">
-        <Card className={clsx("flex flex-col", showWallets && "flex-1")}>
-          <div>
-            <Button.Root
-              className="w-full bg-white-0 flex justify-between"
-              mode="ghost"
-              variant="neutral"
-            >
+      <Card className="flex-1 flex flex-col pt-[15px] overflow-hidden border-t-0">
+        <Card className={clsx("flex flex-col p-[10px]  rounded-[10px]", showWallets && "flex-1")}>
+          <div className="flex justify-between items-center gap-y-[10px]">
+            <span className="text-text-strong-950 text-label-sm">
               Wallet Settings
-              <div className="text-xs flex gap-x-2 items-center">
-                {selectedWallets?.length > 0 && <span className="text-primary-base">{selectedWallets?.length}W</span>}
-                {!showWallets && <span onClick={selecteAllWallets} className="text-text-sub-600">S all</span>}
-                {!showWallets && <span onClick={deselectAllWallets} className="text-text-sub-600">D all</span>}
-                <WalletSettingsMenu />
-                <Button.Icon
-                  onClick={() => {
-                    setShowWallets(!showWallets);
-                  }}
-                  as={!showWallets ? RiEyeOffFill : RiEyeFill}
-                  size="xxsmall"
-                />
-              </div>
-            </Button.Root>
+            </span>
+            <div className="text-xs flex gap-x-[10px] items-center">
+              {selectedWallets?.length > 0 && <span className="text-primary-base text-label-xs">{selectedWallets?.length}W</span>}
+              {!showWallets && <span onClick={selecteAllWallets} className="text-text-sub-600 text-label-xs cursor-pointer hover:underline">S all</span>}
+              {!showWallets && <span onClick={deselectAllWallets} className="text-text-sub-600 text-label-xs cursor-pointer hover:underline"  >D all</span>}
+              <WalletSettingsMenu />
+              <Button.Icon
+                onClick={() => {
+                  setShowWallets(!showWallets);
+                }}
+                className="text-text-sub-600 size-4"
+                as={!showWallets ? RiEyeOffFill : RiEyeFill}
+                size="xxsmall"
+              />
+            </div>
           </div>
           {showWallets && <WalletsContainer />}
         </Card>
-        <h3 className="text-text-strong-950 text-label-sm !mt-4">
+        <h3 className="text-text-strong-950 text-label-sm !mt-5">
           Amount Settings
         </h3>
         <Input.Root size="small" className="bg-transparent">

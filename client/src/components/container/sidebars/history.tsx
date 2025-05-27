@@ -43,7 +43,7 @@ const HistorySidebar = () => {
                 return (
                   <HistoryStartLabel
                     key={wallet_record.id}
-                    date={new Date()}
+                    date={wallet_record.date ?? new Date()}
                     iteration={wallet_record.loop_index ?? 0}
                     type={wallet_record.is_loop ? "LOOP" : "SINGLE"}
                   />
@@ -53,7 +53,7 @@ const HistorySidebar = () => {
                 return (
                   <HistoryEndLabel
                     key={wallet_record.id}
-                    date={new Date()}
+                    date={wallet_record.date ?? new Date()}
                     type={wallet_record.is_loop ? "LOOP" : "SINGLE"}
                   />
                 );

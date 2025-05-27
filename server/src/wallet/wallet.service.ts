@@ -29,12 +29,15 @@ export class WalletService {
         wallet.wallet_address,
       );
 
+      const weth_worth = await moralisHttp.getWalletTokenUsdWorth(wallet.wallet_address, TOKENS.weth)
+
       console.log(wallet_worth);
       const wallet_data: WalletType = {
         address: wallet.wallet_address,
         total_eth: parseFloat((wallet_worth.eth ?? 0)),
         total_usd: parseFloat((wallet_worth.usd ?? 0)),
         token_usd: parseFloat((wallet_worth.token ?? 0)),
+        weth_usd: weth_worth,
         eth_usd: eth_price * parseFloat((wallet_worth.eth ?? 0)),
         index: wallet.index ?? 0,
       };

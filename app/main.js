@@ -211,7 +211,7 @@ const startApp = async () => {
   window = createWindow();
   window.loadFile(join(app_dir, "loading.html"));
 
-  await killProcessSafe(server_process, [3002, 3004]);
+  await killProcessSafe(server_process, [3004]);
   await killProcessSafe(client_process, [3000]);
 
   setTimeout(async () => {

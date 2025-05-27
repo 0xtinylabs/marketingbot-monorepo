@@ -44,8 +44,8 @@ const MainSidebar = () => {
       </Card>
       <div className="flex">
         <Card className="flex-1">
-          <CardTitle>ETH Value</CardTitle>
-          <CardText>${getWalletsBalanceTotalData().eth_usd?.toFixed(3)}</CardText>
+          <CardTitle>WETH Value</CardTitle>
+          <CardText>${getWalletsBalanceTotalData().weth_usd?.toFixed(3)}</CardText>
         </Card>
         <Card className="flex-1">
           <CardTitle>{token?.ticker ?? "TOKEN"} Value</CardTitle>
@@ -53,7 +53,7 @@ const MainSidebar = () => {
         </Card>
       </div>
       <Card className="flex-1 flex flex-col overflow-hidden border-t-0">
-        <Card className="flex-1  flex flex-col">
+        <Card className={clsx("flex flex-col", showWallets && "flex-1")}>
           <div>
             <Button.Root
               className="w-full bg-white-0 flex justify-between"
@@ -99,7 +99,7 @@ const MainSidebar = () => {
         </Input.Root>
         <p className="text-text-sub-600 text-[12px]">
           <span className="text-green-600">Buy:</span> $0 TOKEN /{" "}
-          <span className="text-red-600">Sell:</span> $0 ETH
+          <span className="text-red-600">Sell:</span> $0 WETH
         </p>
         <h3 className="text-text-strong-950 text-label-sm !mt-4">
           Swap Intervals

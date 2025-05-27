@@ -6,6 +6,7 @@ export type WalletType = {
   total_eth: number;
   total_usd: number;
   token_usd: number;
+  weth_usd?: any;
   address: string;
   index?: number;
   eth_usd?: number;

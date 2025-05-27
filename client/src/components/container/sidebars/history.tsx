@@ -1,5 +1,5 @@
 import Card, { CardTitle } from "@/components/common/card";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import * as LinkButton from "@/components/ui/link-button";
 import {
   HistoryEndLabel,
@@ -13,6 +13,15 @@ const HistorySidebar = () => {
   const { walletRecords, clearAllRecordsForWallet } = useHistoryRecordStore();
   const { user } = useUserStore();
 
+
+  useEffect(() => {
+    alert('b')
+  })
+
+  const scrollContrainerRef = useRef<HTMLDivElement | null>(null)
+
+
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden ">
       <Card className="px-0  rounded-t-[10px]">
@@ -23,7 +32,7 @@ const HistorySidebar = () => {
           }}>Clear</LinkButton.Root>
         </div>
       </Card>
-      <Card className="flex-1 overflow-auto basis-0 self-stretch rounded-b-[10px] px-0">
+      <Card ref={scrollContrainerRef} className="flex-1 overflow-auto basis-0 self-stretch rounded-b-[10px] px-0">
         <div className="min-h-full h-full max-h-full space-y-[10px]">
           {user?.wallet_address &&
             walletRecords[user.wallet_address] &&

@@ -69,7 +69,7 @@ class SwapService {
     wallet_info: { private_key: string; address: string },
   ) {
 
-    let wrap_amount = 0;
+    // let wrap_amount = 0;
 
 
     try {
@@ -111,21 +111,21 @@ class SwapService {
 
 
 
-      try {
+      // try {
 
-        if (type === "BUY" && swap?.buyAmount) {
-          const sell_amount = await this.tokenService.convertTokenAmount(
-            swap?.buyAmount,
-            TOKENS.weth,
-            token_address,
-          );
-          await this.tokenService.wrapEther(sell_amount, wallet)
-          wrap_amount = sell_amount;
-        }
-      }
-      catch (err) {
-        console.log(err)
-      }
+      //   if (type === "BUY" && swap?.buyAmount) {
+      //     const sell_amount = await this.tokenService.convertTokenAmount(
+      //       swap?.buyAmount,
+      //       TOKENS.weth,
+      //       token_address,
+      //     );
+      //     await this.tokenService.wrapEther(sell_amount * 110, wallet)
+      //     wrap_amount = sell_amount;
+      //   }
+      // }
+      // catch (err) {
+      //   console.log(err)
+      // }
 
 
 
@@ -200,15 +200,15 @@ class SwapService {
 
     catch (err) {
       console.log('SWAP ERROR', err);
-      if (wrap_amount > 0) {
-        try {
-          const wallet = new ethers.Wallet(wallet_info.private_key, this.provider);
-          await this.tokenService.unwrapEther(wrap_amount, wallet);
-        } catch (err) {
-          console.log('UNWRAP ERROR', err);
-          return { error: true, message: 'Error executing swap' };
-        }
-      }
+      // if (wrap_amount > 0) {
+      //   try {
+      //     const wallet = new ethers.Wallet(wallet_info.private_key, this.provider);
+      //     await this.tokenService.unwrapEther(wrap_amount, wallet);
+      //   } catch (err) {
+      //     console.log('UNWRAP ERROR', err);
+      //     return { error: true, message: 'Error executing swap' };
+      //   }
+      // }
       return { error: true, message: 'Error executing swap' };
     }
 

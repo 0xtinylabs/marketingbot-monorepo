@@ -29,9 +29,9 @@ const WalletsContainer = () => {
             <div className="flex text-text-soft-400 gap-x-2">
               <div>
                 <span className="text-text-strong-950">
-                  ${(wallet.eth_usd ?? 0).toFixed(3)}
+                  ${(wallet.weth_usd ?? 0).toFixed(3)}
                 </span>{" "}
-                ETH
+                WETH
               </div>
               <div>/</div>
               <div>

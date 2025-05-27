@@ -1,9 +1,10 @@
 import clsx from "clsx";
-import React from "react";
+import React, { forwardRef } from "react";
 
-const Card = (props: React.HTMLAttributes<HTMLDivElement>) => {
+const Card = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((props, ref) => {
   return (
     <div
+      ref={ref}
       className={clsx(
         "bg-soft-400 border-[1px] border-bg-soft-200 p-[10px] space-y-2",
         props.className
@@ -12,7 +13,9 @@ const Card = (props: React.HTMLAttributes<HTMLDivElement>) => {
       {props.children}
     </div>
   );
-};
+});
+
+Card.displayName = "Card"
 
 export const CardTitle = (props: React.HTMLAttributes<HTMLHeadingElement>) => {
   return (

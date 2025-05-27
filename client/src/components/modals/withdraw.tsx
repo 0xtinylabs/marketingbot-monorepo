@@ -59,6 +59,8 @@ const WithdrawModal = (props: PropsWithChildren) => {
     }
   }, [percentage, withdraw_token, selectedWallets])
 
+
+
   return (
     <Modal.Root
       open={modal === "withdraw"}
@@ -70,7 +72,6 @@ const WithdrawModal = (props: PropsWithChildren) => {
     >
       <Modal.Trigger asChild>{props.children}</Modal.Trigger>
       <Modal.Content showClose={false}>
-
         <Modal.Body>
 
           <Input.Root size="small">
@@ -112,7 +113,6 @@ const WithdrawModal = (props: PropsWithChildren) => {
                 <Input.Input value={to_wallet_address} onChange={(e) => {
                   setToWalletAddress(e.target.value)
                 }} placeholder="Receiving wallet address" type={"text"} />
-                <Input.Icon as={RiPercentLine} />
               </Input.Wrapper></Input.Root>
           </>}
         </Modal.Body>

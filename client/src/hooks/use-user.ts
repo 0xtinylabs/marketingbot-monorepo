@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import useTokenStore from "@/store/token-store";
 import { io } from "socket.io-client";
 import useSocketStore from "@/store/socket-store";
+import ctoast from "@/components/toast";
 
 const useUser = () => {
   const { disconnect } = useDisconnect();
@@ -28,11 +29,10 @@ const useUser = () => {
           },
         });
         socket.connect();
-        console.log(socket);
         setSocket(socket);
       }
     } catch {
-      toast.error("Could not connect socket");
+      ctoast("Could not connect socket", "error");
     }
   };
 
@@ -73,7 +73,7 @@ const useUser = () => {
       const signature = await signMessage(walletProvider, SIGNMESSAGES.LOGIN);
       if (signature) {
         toast.dismiss()
-        const id = toast.loading("Getting data");
+        const id = ctoast("Getting data", "loading");
         const res = await api.login(address, signature);
         toast.remove(id);
         if (res.user) {

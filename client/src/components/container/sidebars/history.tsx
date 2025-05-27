@@ -34,6 +34,7 @@ const HistorySidebar = () => {
           }}>Clear</LinkButton.Root>
         </div>
       </Card>
+
       <Card id={"history"} ref={scrollContrainerRef} className="flex-1 overflow-auto basis-0 self-stretch rounded-b-[10px] px-0">
         <div className="min-h-full h-full max-h-full space-y-[10px]">
           {user?.wallet_address &&
@@ -43,7 +44,7 @@ const HistorySidebar = () => {
                 return (
                   <HistoryStartLabel
                     key={wallet_record.id}
-                    date={wallet_record.date ?? new Date()}
+                    date={wallet_record.date ?? new Date().toISOString()}
                     iteration={wallet_record.loop_index ?? 0}
                     type={wallet_record.is_loop ? "LOOP" : "SINGLE"}
                   />
@@ -53,7 +54,7 @@ const HistorySidebar = () => {
                 return (
                   <HistoryEndLabel
                     key={wallet_record.id}
-                    date={wallet_record.date ?? new Date()}
+                    date={wallet_record.date ?? new Date().toISOString()}
                     type={wallet_record.is_loop ? "LOOP" : "SINGLE"}
                   />
                 );

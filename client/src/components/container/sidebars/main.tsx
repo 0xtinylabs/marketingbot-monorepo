@@ -129,11 +129,10 @@ const MainSidebar = () => {
                 onChange={(e) => {
                   setTransactionSessionOption(
                     "min_time",
-                    parseInt(e.target.value)
+                    parseFloat(e.target.value)
                   );
                 }}
                 value={transactionSession?.min_time ?? ""}
-
                 type="number"
                 placeholder={
                   transactionSession?.interval === "MINMAX"
@@ -149,11 +148,11 @@ const MainSidebar = () => {
                 <Input.Icon as={RiTimerLine} />
                 <Input.Input
                   value={transactionSession?.max_time ?? ""}
-
+                  type="number"
                   onChange={(e) => {
                     setTransactionSessionOption(
                       "max_time",
-                      parseInt(e.target.value)
+                      parseFloat(e.target.value)
                     );
                   }}
                   placeholder="Max"

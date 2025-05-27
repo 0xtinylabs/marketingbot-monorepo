@@ -44,7 +44,7 @@ const useSocket = (for_init: boolean = false) => {
         addWalletRecord(user?.wallet_address, {
           type: RecordTypeEnum.START,
           is_loop: data.isLoop,
-          date: new Date(),
+          date: new Date().toISOString(),
 
           loop_index: data.loopIndex,
 
@@ -56,7 +56,7 @@ const useSocket = (for_init: boolean = false) => {
       setTimeout(() => {
         addWalletRecord(user?.wallet_address, {
           type: RecordTypeEnum.END,
-          date: new Date(),
+          date: new Date().toISOString(),
           is_loop: data.isLoop,
 
         }, data.id);

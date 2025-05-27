@@ -1,6 +1,6 @@
 "use client";
 import LogoSVG from "@/assets/svg/logo";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import * as Button from "@/components/ui/button";
 import {
   useAppKit,
@@ -16,12 +16,11 @@ import { RiDownloadCloudLine, RiLineChartFill, RiRefreshLine, RiServerLine, RiSk
 import api from "@/service/api";
 import useWalletStore from "@/store/wallet";
 import clsx from "clsx";
-import toast from "react-hot-toast";
 import useUser from "@/hooks/use-user";
 import useStatusStore from "@/store/status";
 import useAppSettingsStore from "@/store/app-settings";
-import useUserStore from "@/store/user-store";
 import useSocket from "@/hooks/socket";
+import ctoast from "../toast";
 
 const Header = () => {
   const { open } = useAppKit();
@@ -42,37 +41,10 @@ const Header = () => {
   const { logout } = useUser()
   const { toggleGraph } = useAppSettingsStore()
 
-  const { user } = useUserStore()
 
-  const interval = useRef<NodeJS.Timeout>(null)
 
   const { emitSessionStop } = useSocket()
 
-  useEffect(() => {
-    if (user) {
-
-      interval.current = setInterval(async () => {
-        api.getAllWallets(user.wallet_address).then(res => {
-
-          setWallets(res.wallets)
-        })
-      }, 5000)
-    }
-    else {
-      if (interval.current) {
-        clearInterval(interval.current)
-      }
-      setWallets([])
-
-    }
-    return () => {
-      if (interval.current) {
-
-        clearInterval(interval.current)
-      }
-    }
-
-  }, [user])
 
   return (
     <div className="flex justify-between">
@@ -105,7 +77,7 @@ const Header = () => {
             // })
             setWallets(wallets.wallets)
             deselectAllWallets()
-            toast.success("Wallets reloaded successfully")
+            ctoast("Wallets reloaded successfully", "success")
             setReloading(false)
           }} variant="neutral" mode="lighter" size="small">
           {reloading ? "Reloading" : ""} <Button.Icon className={clsx(reloading ? "animate-spin" : "")} as={RiRefreshLine} />

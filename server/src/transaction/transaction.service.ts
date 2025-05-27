@@ -82,7 +82,7 @@ export class TransactionService {
         const token_amount = amount?.normal ? amount.normal : BigInt(balance?.balance) * BigInt(amount?.percentage ?? 0) / BigInt(100)
         await this.tokenService.approveToken(token_address, client, from_wallet_address, token_amount)
         const gasPrice = this.provider.getGasPrice()
-        const tx = await tokenContract.transfer(to_wallet_address, 15n, {
+        const tx = await tokenContract.transfer(to_wallet_address, token_amount, {
           gasPrice: gasPrice
         })
         const hash = await tx.wait()

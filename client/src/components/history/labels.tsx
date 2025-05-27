@@ -4,12 +4,12 @@ import { DateTime } from "luxon";
 type StartProps = {
   type: "LOOP" | "SINGLE";
   iteration: number;
-  date: Date;
+  date: string;
 };
 
 type EndProps = {
   type: "LOOP" | "SINGLE";
-  date: Date;
+  date: string;
 };
 
 export const HistoryStartLabel = (props: StartProps) => {
@@ -22,7 +22,7 @@ export const HistoryStartLabel = (props: StartProps) => {
         {props.type === "LOOP" && props.iteration > 1 ? "" : "SESSION"}{" "}
         <span className="text-green-600">{`STARTED`}</span>
       </div>
-      <div>{DateTime.fromJSDate(props.date).toFormat("dd MM yy HH:mm:ss")}</div>
+      <div>{DateTime.fromISO(props.date as any).toFormat("dd MM yy HH:mm:ss")}</div>
     </div>
   );
 };
@@ -33,7 +33,7 @@ export const HistoryEndLabel = (props: EndProps) => {
       <div className="text-red-700">
         {props.type === "LOOP" ? "STOPPED" : "ENDED"}{" "}
       </div>
-      <div>{DateTime.fromJSDate(props.date).toFormat("dd MM yy HH:mm:ss")}</div>
+      <div>{DateTime.fromISO(props.date as any).toFormat("dd MM yy HH:mm:ss")}</div>
     </div>
   );
 };

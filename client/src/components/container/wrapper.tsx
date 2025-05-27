@@ -7,9 +7,11 @@ import WithdrawModal from "../modals/withdraw";
 import TerminalModal from "../modals/terminal";
 import useIpcListener from "@/hooks/ipc-listener";
 import useSocket from "@/hooks/socket";
+import useListener from "@/hooks/listeners";
 
 const Wrapper = ({ children }: PropsWithChildren) => {
 
+  useListener()
   useIpcListener()
   useSocket(true)
 

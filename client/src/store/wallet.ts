@@ -13,6 +13,7 @@ type State = {
   getWalletsBalanceTotalData: () => { eth: any, usd: any, token_usd: any, eth_usd: any, weth_usd: any };
   getSelectedWalletsBalanceTotalData: () => { eth: any, usd: any, token_usd: any, eth_usd: any, weth_usd: any };
   selecteAllWallets: () => WalletType[];
+  resetSelectedWallets: (wallets: WalletType[]) => void
 };
 const useWalletStore = create<State>((set, get) => ({
   wallets: [],
@@ -40,7 +41,22 @@ const useWalletStore = create<State>((set, get) => ({
 
 
   },
+  resetSelectedWallets: (wallets) => {
+    const selectedWallets = get().selectedWallets
+
+    const newdataWallets = selectedWallets.map(wallet => {
+      const new_data = wallets.find(w => w.address === wallet.address)
+      if (new_data) {
+        return { ...new_data }
+      }
+      else {
+        return wallet
+      }
+    })
+    set({ selectedWallets: newdataWallets })
+  },
   getSelectedWalletsBalanceTotalData: () => {
+
     const result = {
       eth: 0,
       usd: 0,
@@ -48,6 +64,7 @@ const useWalletStore = create<State>((set, get) => ({
       eth_usd: 0,
       weth_usd: 0
     }
+
     get().selectedWallets.forEach((wallet) => {
       result.eth += wallet.total_eth ?? 0;
       result.usd += wallet.total_usd ?? 0;

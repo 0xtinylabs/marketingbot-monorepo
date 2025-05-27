@@ -85,6 +85,9 @@ export class WalletService {
       });
 
       const max_index = await this.db.wallet.aggregate({
+        where: {
+          user: { id: user.id }
+        },
         _max: {
           index: true,
         },
